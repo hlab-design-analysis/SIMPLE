@@ -56,7 +56,8 @@ res1[res1==1] <- 8 # mean weight sprat
 # =====================
 
 # settings:
-haul_weight_g <- 20*10^6 # 20 tons
+#haul_weight_g <- 20*10^6 # 20 tons
+haul_weight_g <- 50000 # 20 kgs
 prop_her_weight <- 0.59
 
 target_weight_her<-prop_her_weight*haul_weight_g
@@ -128,66 +129,99 @@ target_weight_spr<-(1-prop_her_weight)*haul_weight_g
 	# 0 == sprat
 	
 		# type 1: fully randomized on species
-			s <- sample(haul_N, size=haul_N, replace=F)
-			s[s %in% 1:haul_N_spr]<-0
-			s[s %in% (haul_N_spr+1):haul_N]<-1
+			flow <-rep(NA, haul_N)
+			s <- sample(haul_N, size=haul_N_her, replace=F)
+			flow[s]<-1
+			flow[!(1:haul_N) %in% s]<-0
 				# demo:
-				table(s)
+				table(flow)
+				plot(flow); points(rep(0.5,haul_N), col=flow+1)
+
+		# type 2: first herring then sprat
+			flow <-rep(0, haul_N)
+			flow[1:haul_N_her]<-1
+				# demo:
+				table(flow)
+				plot(flow, col=flow+1); points(rep(0.5,haul_N), col=flow+1)
 		
-		# type 2: gradient
+		# type 3a: gradient
 			# thoughts - what is the gradient hypothesis? needs to be informed by reality
 							# is it based on density? if so, is it sprat first or herring first? 
 							# or is it based on size or weight of individuals irrespective of species?
 			
 			# below one possible way to randomize the outcome. 
 				# the result can then be applied to the hypothesis made: density, size, weight, etc
-			pik=inclusionprobabilities(1:haul_N,haul_N_her)
-			# pik=inclusionprobabilities(1:1000,410)
-			s1 <- UPmaxentropy(pik)
+			grad<-(1/(1:haul_N))^0.5 # softer
+			grad<-1/(1:haul_N) # soft
+			grad<-(1/(1:haul_N))^2 # sharper
+			grad<-(1/(1:haul_N))^5 # sharper
+			grad<-(1:haul_N)	# slightly heterogeneous, herring last
+			grad<-1/(1:haul_N)	# sharper
+			flow <-rep(NA, haul_N)
+			s <- sample(haul_N, size=haul_N_her, replace=F, prob=grad)
+			flow[s]<-1
+			flow[!(1:haul_N) %in% s]<-0
 				# demo:
-				table(s1)
+				table(flow)
+				plot(flow, col=flow+1); points(rep(0.5,haul_N), col=flow+1)
 
+		# type 3b: gradient sinusoidal
+			f<-0.25
+			grad<-sin((1:haul_N)/(f*haul_N)*2*pi)
+			flow <-rep(NA, haul_N)
+			s <- sample(1:haul_N, size=haul_N_her, replace=F, prob=(grad+1)/2)
+			flow[s]<-1
+			flow[!(1:haul_N) %in% s]<-0
+				# demo:
+				table(flow)
+				plot(flow, col=flow+1); points(rep(0.5,haul_N), col=flow+1); points((grad+1)/2, type="l")
+			
+		# type 3c: other types of heterogeneity
+			# x segments/fish-holds with diferent species composition?
+
+# ==============
 # associate the individuals to the flow
-		
-		# type 1: fully randomized on length
-			names(s)<-s
-			names(s)[s==1]<-"her"
-			names(s)[s==0]<-"spr"
-			pop_len<-s
+# ==============	
+	
+		# type 1: randomized on length within species
+			names(flow)<-flow
+			names(flow)[flow==1]<-"her"
+			names(flow)[flow==0]<-"spr"
+			pop_len <- flow
 			pop_len[names(pop_len)=="her"]<-sample(haul_lengths_her, size=haul_N_her, replace=F)
 			pop_len[names(pop_len)=="spr"]<-sample(haul_lengths_spr, size=haul_N_spr, replace=F)
 			
-			pop_wt<-s
+			pop_wt<-flow
 			pop_wt[names(pop_wt)=="her"]<-exp(coefs_weight_length_her[1])*(pop_len[names(pop_len)=="her"]^coefs_weight_length_her[2])
 			pop_wt[names(pop_wt)=="spr"]<-exp(coefs_weight_length_spr[1])*(pop_len[names(pop_len)=="spr"]^coefs_weight_length_spr[2])
 			
-			pop_vol<-s
+			pop_vol<-flow
 			pop_vol[names(pop_vol)=="her"]<-pop_wt[names(pop_wt)=="her"] / 932.274568364 # density her = 932.274568364 gram/liter
 			pop_vol[names(pop_vol)=="spr"]<-pop_wt[names(pop_wt)=="spr"] / 852.182251494 # density spr = 852.182251494 gram/liter
 			
 			pop_vol_cum<-cumsum(pop_vol)
 		
-		# type 2: larger or smaller first
-			# to be coded: 
-				# rationale: 
-					# alternatives are equivalent - just need to code one of them and invert the flow to get the other
-					# if sampling is systematic there is no point in simulating both: only one of them is needed
-			# different types of gradients are possible
+		# type 2: larger or smaller / denser or less denser / more or less volumous first
+			# needs to be coded (gradient strategy proportional to variable could be one one)
 	
+
+# ==============
+# from flow of fish to flow of buckets
+# ==============	
 	
-	
-res_cum_vol<-cumsum(res_vol)
-head(res_cum_vol) 
+head(pop_vol_cum) 
 
 target_vol <- 0.25
 
-res_box<-res_cum_vol%/%target_vol
+flow_bucket<-pop_vol_cum%/%target_vol+1
 
-    # n_ind per box
-    max(res_box)
-    summary(c(table(res_box)))
-    summary(c(table(res_box[res==0])))
-    summary(c(table(res_box[res==1])))
+    # number of buckets
+	max(flow_bucket)
+	# number of individuals per bucket
+	table(flow_bucket, names(flow_bucket))
+    table(names(flow_bucket))
+	plot(prop.table(table(flow_bucket, names(flow_bucket)),1)[,1])
+
 
 # simulates n_samples systematic sampling [for proportions]
     
