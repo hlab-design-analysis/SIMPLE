@@ -1,6 +1,11 @@
 rm(list=ls())
 library(sampling)
 
+
+# =====================
+# playing around with gradients (sample and  unequal probability approach
+# =====================
+
 v1<-rep(1,100); v1
 v2<-rep(2, 100); v2
 
@@ -14,13 +19,11 @@ n_v0 <- N_haul-n_v1	# number of fish v0 type
 
 plot(srswor(n=n_v1, N=N_haul))
 
-
-
 windows(10,7); par(mfrow=c(2,2))
 # very soft grandient
 pik=inclusionprobabilities(c(1:N_haul)^0.5, n_v0)
 sum(pik)
-s <- UPmaxentropy(pik)
+s <- UPsampfordmaxentropy(pik)
 plot(s)
 
 
@@ -30,7 +33,7 @@ s <- UPmaxentropy(pik)
 plot(s)
 plot(s1)
 
-# 50 sets of gradient combined
+# 50 sets of gradient combined [note: this does not work as expected]
 res<-c()
 for (i in 1:25)
 {
@@ -45,20 +48,16 @@ res<-res[order(as.numeric(names(res)))]
 
 plot(res)
 
-res1<-res
-res1[res1==0] <- 24 # mean weight herring
-res1[res1==1] <- 8 # mean weight sprat
-
-
 
 # =====================
-# generating 20 tons haul with a specific spp composition in weight
+# generating 20 kgs/tons haul with a specific spp composition in weight
 # =====================
 
 # settings:
 #haul_weight_g <- 20*10^6 # 20 tons
 haul_weight_g <- 50000 # 20 kgs
 prop_her_weight <- 0.59
+prop_her_weight <- 0.7 # this gives approx same number of herring and sprat under th lf selected below
 
 target_weight_her<-prop_her_weight*haul_weight_g
 target_weight_spr<-(1-prop_her_weight)*haul_weight_g
@@ -145,7 +144,7 @@ target_weight_spr<-(1-prop_her_weight)*haul_weight_g
 				plot(flow, col=flow+1); points(rep(0.5,haul_N), col=flow+1)
 		
 		# type 3a: gradient
-			# thoughts - what is the gradient hypothesis? needs to be informed by reality
+			# To consider - what is the gradient hypothesis? needs to be informed by reality
 							# is it based on density? if so, is it sprat first or herring first? 
 							# or is it based on size or weight of individuals irrespective of species?
 			
@@ -158,6 +157,10 @@ target_weight_spr<-(1-prop_her_weight)*haul_weight_g
 			grad<-(1:haul_N)	# slightly heterogeneous, herring last
 			grad<-1/(1:haul_N)	# sharper
 			flow <-rep(NA, haul_N)
+			# it would be better to use UPsampford instead 
+				# but is slow. Also note that even when prop=0.7 (i.e., when the no of sprat and herring is about the same)
+						# seems blanks are happenning for herring and not so much for sprat - why? could be a problem with the sample function? 
+							#(see more here https://stats.stackexchange.com/questions/639211/is-rs-weighted-sample-without-replacement-function-misleading)
 			s <- sample(haul_N, size=haul_N_her, replace=F, prob=grad)
 			flow[s]<-1
 			flow[!(1:haul_N) %in% s]<-0
@@ -169,7 +172,7 @@ target_weight_spr<-(1-prop_her_weight)*haul_weight_g
 			f<-0.25
 			grad<-sin((1:haul_N)/(f*haul_N)*2*pi)
 			flow <-rep(NA, haul_N)
-			s <- sample(1:haul_N, size=haul_N_her, replace=F, prob=(grad+1)/2)
+			s <- sample(1:haul_N, size=haul_N_her, replace=F, prob=(grad+1)/2) # see note above on unequal prob and sample
 			flow[s]<-1
 			flow[!(1:haul_N) %in% s]<-0
 				# demo:
@@ -178,6 +181,8 @@ target_weight_spr<-(1-prop_her_weight)*haul_weight_g
 			
 		# type 3c: other types of heterogeneity
 			# x segments/fish-holds with diferent species composition?
+
+
 
 # ==============
 # associate the individuals to the flow
@@ -206,72 +211,70 @@ target_weight_spr<-(1-prop_her_weight)*haul_weight_g
 	
 
 # ==============
-# from flow of fish to flow of buckets
+# from flow of fish (flow) to flow of buckets (flow_split_into_buckets)
 # ==============	
 	
 head(pop_vol_cum) 
 
 target_vol <- 0.25
 
-flow_bucket<-pop_vol_cum%/%target_vol+1
+flow_split_into_buckets<-pop_vol_cum%/%target_vol+1
 
     # number of buckets
-	max(flow_bucket)
+	max(flow_split_into_buckets)
 	# number of individuals per bucket
-	table(flow_bucket, names(flow_bucket))
-    table(names(flow_bucket))
-	plot(prop.table(table(flow_bucket, names(flow_bucket)),1)[,1])
+	table(flow_split_into_buckets, names(flow_split_into_buckets))
+    table(names(flow_split_into_buckets))
+	# proportion herring in bucket sequence
+	plot(prop.table(table(flow_split_into_buckets, names(flow_split_into_buckets)),1)[,1])
 
 
+# ==============	
 # simulates n_samples systematic sampling [for proportions]
+# ==============	
+	# note: the following approximates simulating systematic sampling but size slight varies from objective due to edge effects
+			# a better way exists - see wonderful in function (repo HaVonboardSmallPelagics)
     
     # set number of samples
         n_samples <- 30
-        max(res_box)%/%n_samples
+        max(flow_split_into_buckets)%/%n_samples
     
     # random_start
-        start_box <- sample(1:((max(res_box)%/%n_samples)-1), size=1)
-        sampled_box<-seq(start_box,  max(res_box), by = max(res_box)%/%n_samples)
+        start_bucket <- sample(1:((max(flow_split_into_buckets)%/%n_samples)-1), size=1)
+        sampled_buckets<-seq(start_bucket,  max(flow_split_into_buckets), by = max(flow_split_into_buckets)%/%n_samples)
 
     # prop her in weight
         # total
-        sum(res_wt[res==0])/sum(res_wt)
+        sum(pop_wt[names(pop_wt)=="her"])/sum(pop_wt)
         # in sampled boxes
-        sum(res_wt[res==0 & res_box %in% sampled_box])/sum(res_wt[res_box %in% sampled_box])
+        sum(pop_wt[names(pop_wt)=="her" & flow_split_into_buckets %in% sampled_buckets])/sum(pop_wt[flow_split_into_buckets %in% sampled_buckets])
         
             # in first box
-            sum(res_wt[res==0 & res_box %in% sampled_box[1]])/ sum(res_wt[res_box %in% sampled_box[1]])  
+            sum(pop_wt[names(pop_wt)=="her" & flow_split_into_buckets %in% sampled_buckets[1]])/ sum(pop_wt[flow_split_into_buckets %in% sampled_buckets[1]])  
             # in middle box
-            sum(res_wt[res==0 & res_box %in% sampled_box[n_samples%/%2] ])/ sum(res_wt[res_box %in% sampled_box[n_samples%/%2]])  
-            sum(res_wt[res==0 & res_box %in% sampled_box[n_samples%/%2+1] ])/ sum(res_wt[res_box %in% sampled_box[n_samples%/%2+1]])  
+            sum(pop_wt[names(pop_wt)=="her" & flow_split_into_buckets %in% sampled_buckets[n_samples%/%2] ])/ sum(pop_wt[flow_split_into_buckets %in% sampled_buckets[n_samples%/%2]])  
+            sum(pop_wt[names(pop_wt)=="spr" & flow_split_into_buckets %in% sampled_buckets[n_samples%/%2] ])/ sum(pop_wt[flow_split_into_buckets %in% sampled_buckets[n_samples%/%2]])  
+            sum(pop_wt[names(pop_wt)=="her" & flow_split_into_buckets %in% sampled_buckets[n_samples%/%2+1] ])/ sum(pop_wt[flow_split_into_buckets %in% sampled_buckets[n_samples%/%2+1]])  
+            sum(pop_wt[names(pop_wt)=="spr" & flow_split_into_buckets %in% sampled_buckets[n_samples%/%2+1] ])/ sum(pop_wt[flow_split_into_buckets %in% sampled_buckets[n_samples%/%2+1]])  
              # in last box
-            sum(res_wt[res==0 & res_box %in% sampled_box[n_samples] ])/ sum(res_wt[res_box %in% sampled_box[n_samples]])  
-    # n indiv
-        length(res_wt[res==0 & res_box %in% sampled_box])
-        length(res_wt[res==1 & res_box %in% sampled_box])
-
-
+            sum(pop_wt[names(pop_wt)=="her" & flow_split_into_buckets %in% sampled_buckets[n_samples] ])/ sum(pop_wt[flow_split_into_buckets %in% sampled_buckets[n_samples]])  
+            sum(pop_wt[names(pop_wt)=="spr" & flow_split_into_buckets %in% sampled_buckets[n_samples] ])/ sum(pop_wt[flow_split_into_buckets %in% sampled_buckets[n_samples]])  
     
+	# n indiv sampled
+        length(pop_wt[names(pop_wt)=="her" & flow_split_into_buckets %in% sampled_buckets])
+        length(pop_wt[names(pop_wt)=="spr" & flow_split_into_buckets %in% sampled_buckets])
 
- sum(res_wt[res==1 & res_box %in% sampled_box])      
-  sum(res_wt[res==0 & res_box %in% sampled_box])      
 
 
+# ==============	
+# other
+# ==============	
 
+# density stuff
 
 d = m / vol
-
 d_her = 58.2 = 932.274568364 gram/liter
-
 d_spr = 53.2 pound/cubic foot = 852.182251494 gram/liter
-
 8/852.182251494 = 0.009387663 l 
-
-
-
-
-# sharp gradient
-plot(UPmaxentropy(pik))
-
 
 
