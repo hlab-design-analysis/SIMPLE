@@ -73,7 +73,7 @@ source("functions_SIMPLE/functionsLink_SIMPLE.R")
 # Catch properties
 nHaul = 3 # Number of hauls
 p_herring = c(0.1, 0.2, 0.3) # Proportion of herring. If nHaul > 1, use vector with one value per each
-N = c(5000, 200000, 100000) # Catch of both species If nHaul > 1, use vector with one value per each
+W = c(5000, 200000, 100000) # Catch of both species If nHaul > 1, use vector with one value per each
 
 # Tank properties
 tankHeight = 700
@@ -133,7 +133,7 @@ source("~/Personal_Eros_locale/SIMPLE/Simulators/Simulator2_SIMPLE/simulationLog
 haulsList <- makeHaulsList(
   nHaul = nHaul, 
   p_herring = p_herring,
-  N = N
+  W = W
 )
 
 ########################################################################################
