@@ -35,6 +35,7 @@ options(max.print = 1000)
 set.seed(123)
 
 ## P2: Print message
+suppressPackageStartupMessages(library(crayon))
 cat('\n')
 cat(green("          \u2713  - Completed")) # Inform on the progress  
 cat("\n")
