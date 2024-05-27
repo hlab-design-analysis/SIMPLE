@@ -42,7 +42,3 @@ plotProportionMatrix <- function(
     )
   
 }
-
-
-plotProportionMatrix(, sizeLabelText = 1)
-
