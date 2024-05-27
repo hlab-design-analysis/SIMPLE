@@ -31,7 +31,7 @@
 ########################################################################################
 
 ## P1: Set wd, where SIMPLE folder is
-setwd("~/Personal_Eros_locale/SIMPLE/Simulators/Simulator2_SIMPLE")
+setwd("~/Public_Eros/SIMPLE/Simulators/Simulator2_SIMPLE")
 
 ## P2: Indicate directory to store intermediate results (should be a place able to allocate large files e.g. 70gb)
 supportResultsDir <- "~/mnt/CNAS/SIMPLE_Auxiliary"
@@ -73,7 +73,6 @@ source("functions_SIMPLE/functionsLink_SIMPLE.R")
 # Catch properties
 nHaul = 3 # Number of hauls
 p_herring = c(0.1, 0.2, 0.3) # Proportion of herring. If nHaul > 1, use vector with one value per each
-prob = c(p_herring, p_sprat)
 N = c(5000, 200000, 100000) # Catch of both species If nHaul > 1, use vector with one value per each
 
 # Tank properties
