@@ -24,15 +24,15 @@
 cat("[X]       Loading custom functions")
 
 ## P1: Load the libraries
-library(tidyverse)
-library(binhf)
-library(reshape2)
-library(plotly)
-library(catmaply)
-library(crayon)
-library(dqrng)
-library(ggfocus)
-library(ggpubr)
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(binhf))
+suppressPackageStartupMessages(library(reshape2))
+suppressPackageStartupMessages(library(plotly))
+suppressPackageStartupMessages(library(catmaply))
+suppressPackageStartupMessages(library(crayon))
+suppressPackageStartupMessages(library(dqrng))
+suppressPackageStartupMessages(library(ggfocus))
+suppressPackageStartupMessages(library(ggpubr))
 
 ## P2: Print message
 cat('\n')
