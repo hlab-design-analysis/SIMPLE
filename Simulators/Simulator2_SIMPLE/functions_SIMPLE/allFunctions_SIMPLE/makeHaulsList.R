@@ -25,7 +25,7 @@
 makeHaulsList <- function(
   nHaul, # Number of hauls
   p_herring, # Proportion of herring. If nHaul > 1, use vector with one value per each
-  N # Catch of both species If nHaul > 1, use vector with one value per each
+  W # Catch of both species If nHaul > 1, use vector with one value per each
   ){
   if(nHaul == 1){
     
@@ -36,7 +36,7 @@ makeHaulsList <- function(
     
     # Create parameter list
     listHaul[[1]] = list(
-      "catch_n" = N,
+      "catch_w" = W,
       "p_herring" = p_herring ,
       "p_sprat" = 1 - p_herring
     )
@@ -52,7 +52,7 @@ makeHaulsList <- function(
     # Create parameter list
     for(i in 1:length(listHaul)){
       listHaul[[i]] = list(
-        "catch_n" = N[i],
+        "catch_w" = W[i],
         "p_herring" = p_herring[i],
         "p_sprat" = 1 - p_herring[i]
       )
