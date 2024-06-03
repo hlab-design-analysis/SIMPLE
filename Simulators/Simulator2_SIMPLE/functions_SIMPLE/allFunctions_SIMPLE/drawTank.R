@@ -34,7 +34,7 @@ drawTank <- function(
     )
   
   if(plot == 1){
-    drawTank <- drawTank %>% filter(Var3 == 1)
+    drawTank <- drawTank %>% filter(Var3 == 2)
     ggplot(data = drawTank, aes(Var2, Var1, fill = value)) +
       geom_tile() +
       #facet_wrap(.~fac) +
@@ -61,4 +61,5 @@ drawTank <- function(
     drawTank
   }
 }
+
 
