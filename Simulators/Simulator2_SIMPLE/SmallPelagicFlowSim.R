@@ -89,7 +89,7 @@ W = c(50, 200, 100) # Catch of both species If nHaul > 1, use vector with one va
 
 # Tank properties
 tankHeight = 700
-tankWidth = 500
+tankLength = 500
 bigTank = 0
 
 # Tube properties
@@ -422,10 +422,10 @@ haulsList$Haul_1$fishes[,,4] # Volume of the single fishes in the first haul
 ########################################################################################
 ## P1: Build the tank.
 # Note that if more than one haul is present the tank will be rebuilt below, with the 
-# same tankHeight and tankWidth. 
+# same tankHeight and tankLength. 
 tank <- buildTank(
   tankHeight = tankHeight, # 700
-  tankWidth = tankWidth, # 500
+  tankLength = tankLength, # 500
   bigTank = bigTank, 
   plot = 1
 )
@@ -444,11 +444,14 @@ tank <- buildTank(
 # sunk to the bottom all together. 
 #
 ########################################################################################
+
+unlist(haulsList$Haul_1$fishes[,,1])
+
 ## P1: Pour the fishes in the tank
 # First, we need to take into account the eventual presence of different hauls and their magnitude. 
 if(nHaul == 1){
   # Select position at random in the tank matrix 
-  positions <- dqsample(length(tank), N[1])
+  positions <- dqsample(length(tank), W[1])
   
   # Fill these position with the fishes in the haul 
   tank[positions] <- as.numeric(unlist(haulsList$Haul_1$speciesVector))
@@ -465,7 +468,7 @@ if(nHaul == 1){
   
   ## In case more than one haul are involved it is a bit trickier, due to the way R indexes matrices. 
   # First we need to assign increasing numbers by row to the tank matrix, as R use columns to index. 
-  tank <- matrix(1:(tankHeight*tankWidth),tankHeight,tankWidth,byrow = T) # Fill it with numbers from first two last cell, R will fill column
+  tank <- matrix(1:(tankHeight*tankLength),tankHeight,tankLength,byrow = T) # Fill it with numbers from first two last cell, R will fill column
   tank <- tank[nrow(tank):1,] # To mimic that the bottom is the first to fill, we flip it also vertically
   # Now the bottom left cell of the matrix value is 1, the right top cell value is length(tank) - the maximum. 
   
@@ -644,7 +647,7 @@ addition = 0
 ltb <- list(flowtube)
 
 # The following lines avoid to produce an empty frame when saving the plot, this happens for time being multiplier of tank width x tube height, as there are no more fishes in the last tank row
-toAvoid <- which(1:timeSteps %% (tankWidth/heightTube) == 0) + 1
+toAvoid <- which(1:timeSteps %% (tankLength/heightTube) == 0) + 1
 
 while(!all(is.na(tank))){
   

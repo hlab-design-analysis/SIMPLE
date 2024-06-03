@@ -24,12 +24,13 @@
 # Build the tank
 buildTank <- function(
   tankHeight,
-  tankWidth,
+  tankLength, 
   bigTank, 
-  plot = c(1,0)
+  plot = c(1,0) 
   ){
   
-  tank <- matrix(NA,tankHeight,tankWidth)
+  ## Build the tank array 
+  tank <- array(NA, list(tankHeight,tankLength,4))
   
   if(plot == 1){
     if(bigTank == 1){
