@@ -64,6 +64,18 @@ source("functions_SIMPLE/functionsLink_SIMPLE.R")
 
 ########################################################################################
 #
+# Load data ----- 
+# Here we load real sampling data to use as reference for biological parameters (
+# e.g. weigth distribution). 
+#
+########################################################################################
+
+## Load data 
+load ("~/Public_Eros/SIMPLE/Simulators/Simulator1_SIMPLE/001_Inputs_SimRealHaul/Input_data_her.27.25-29_8.Rdata"); df_her <- df0
+load ("~/Public_Eros/SIMPLE/Simulators/Simulator1_SIMPLE/001_Inputs_SimRealHaul/Input_data_spr.27.22-32_8.Rdata"); df_spr <- df0
+
+########################################################################################
+#
 # Set parameters -----
 # Here we set the initial condition for the simulation
 #
@@ -73,7 +85,7 @@ source("functions_SIMPLE/functionsLink_SIMPLE.R")
 # Catch properties
 nHaul = 3 # Number of hauls
 p_herring = c(0.1, 0.2, 0.3) # Proportion of herring. If nHaul > 1, use vector with one value per each
-W = c(5000, 200000, 100000) # Catch of both species If nHaul > 1, use vector with one value per each
+W = c(50, 200, 100) # Catch of both species If nHaul > 1, use vector with one value per each
 
 # Tank properties
 tankHeight = 700
@@ -136,42 +148,271 @@ haulsList <- makeHaulsList(
   W = W
 )
 
+
 ########################################################################################
 #
 # Additional calculations ----
 # Here we set the initial condition for the simulation
 #
 ########################################################################################
-## P1: Assign the species to the fishes caught based on proportions and quantity
-# Given the probability on n particles we expect n*prob fishes belonging to each species (https://stackoverflow.com/questions/34186755/sample-vector-exactly-according-to-the-probability-given)
-for(i in 1:length(haulsList)){
-  haulsList[[i]] <- c(
-    # Here what we need to do is to append to each haul in the haul list a vector containing two categories with a length equal to N and a proportion equal to the ones of the species as indicated by the parameters
-    haulsList[[i]], # Basically speciesVector = rep(c("herring","sprat"), round(N * c(p_herring, p_sprat)))
-    list(
-      speciesVector = rep(
-        c("herring","sprat"), 
-        round(
-          as.numeric(haulsList[[i]][1]) * as.numeric(c(haulsList[[i]][2], haulsList[[i]][3]))
-          )
+
+## P1: Select a sample for each species 
+df_her<-df_her[df_her$sampId=="2009_2113",]
+df_spr<-df_spr[df_spr$sampId=="2009_2105",]
+
+## P2: Plot coupled distribution (weight and length)
+df_all <- rbind(df_her %>% mutate(species = "her"), df_spr %>% mutate(species = "spr"))
+p <- ggExtra::ggMarginal(
+  ggplot(df_all) + 
+    geom_point(aes(x = indWt, y = lenCls, color = species), alpha = .5) + 
+    scale_color_manual(
+      labels = c("her" = "herring", "spr" = "sprat"), 
+      values = c("her" = "blue", "spr" = "red")
+    ) + 
+    theme_bw() + 
+    theme(
+      legend.position = "bottom"
+    ), 
+  type = "density", 
+  margins = "both",
+  size = 8, 
+  groupColour = TRUE, 
+  groupFill = TRUE, 
+  yparams = list(n=40, na.rm = T)
+)
+p
+
+## P3: Give a look to the length and weight relationship 
+mh <- lm(log(lenCls) ~ log(indWt), data = df_her); rh <- summary(mh)$adj.r.squared
+ms <- lm(log(lenCls) ~ log(indWt), data = df_spr); rs <- summary(ms)$adj.r.squared
+lwrDf <- rbind(
+  cbind(
+    species = "her", 
+    expand.grid(
+      indWt = seq(0,max(df_her$indWt), 1), 
+      lenCls = seq(0,max(df_her$lenCls), 1)
+    ), 
+    pred = predict(
+      mh,
+      newdata = expand.grid(
+        indWt = seq(0,max(df_her$indWt), 1), 
+        lenCls = seq(0,max(df_her$lenCls), 1)
+      ))
+    ), 
+  cbind(
+    species = "spr", 
+    expand.grid(
+      indWt = seq(0,max(df_spr$indWt), 1), 
+      lenCls = seq(0,max(df_spr$lenCls), 1)
+    ), 
+    pred = predict(
+      ms, 
+      newdata = expand.grid(
+        indWt = seq(0,max(df_spr$indWt), 1), 
+        lenCls = seq(0,max(df_spr$lenCls), 1)
         )
       )
-    )    
-  }
+  )
+)
 
-## P2: Turn in numbers the species
-# Turn the speciesVector in the haulList into numbers (herring = 1, sprat = 2) to optimize memory
-for(i in 1:length(haulsList)){
-  haulsList[[i]][4] <- list(ifelse(as.character(unlist(haulsList[[i]][4])) == "herring", 1, 2))
+ggplot() + 
+  geom_point(data = df_all, aes(x = indWt, y = lenCls, color = species), alpha = .5) + 
+  geom_line(data = lwrDf, aes(x = indWt, y = exp(pred)), color = "black") + 
+  scale_color_manual(
+    labels = c("her" = "herring", "spr" = "sprat"), 
+    values = c("her" = "blue", "spr" = "red")
+  ) + 
+  theme_bw() +
+  theme(
+    strip.background = element_rect(
+      fill = "black"
+    ), 
+    strip.text = element_text(
+      color = "white"
+    )
+  ) + 
+  facet_wrap(~species)
+
+dev.off()
+
+## P2: Determine the length distribution 
+lf_her <- prop.table(table(df_her$lenCls)); round(lf_her*100,1); barplot(lf_her)
+lf_spr <- prop.table(table(df_spr$lenCls)); round(lf_spr*100,1); barplot(lf_spr)
+
+## P3: Determine the weight distribution 
+wf_her <- prop.table(table(df_her$indWt)); names(wf_her) <- as.integer(names(wf_her))/1000; round(wf_her*100,1); barplot(wf_her)
+wf_spr <- prop.table(table(df_spr$indWt)); names(wf_spr) <- as.integer(names(wf_spr))/1000; round(wf_spr*100,1); barplot(wf_spr)
+
+## P4: Extract fishes from the weight distribution until the weight of the haul is reached
+# For herring
+for(h in 1:length(haulsList)){
+  
+  extractedFishWeigthList = c()
+  weightSingleHerrings = 0
+  
+  while(weightSingleHerrings<(haulsList[[h]]$catch_w*haulsList[[h]]$p_herring)){
+    # Extract a fish according to weight distribution 
+    extractedFishWeigth <- as.numeric(sample(names(wf_her), size=1, prob=wf_her))
+    
+    # Print
+    cat(paste0("I extracted an herring weighting: ", extractedFishWeigth, ". Hence, ", (haulsList[[h]]$catch_w*haulsList[[h]]$p_herring) - weightSingleHerrings, " kg remain to be sampled."), "\n")
+    
+    # Append the extracted fish 
+    extractedFishWeigthList <- c(extractedFishWeigthList, extractedFishWeigth)
+    
+    # Update the weight of the sample
+    weightSingleHerrings <- sum(weightSingleHerrings, extractedFishWeigth)
+    
+  }  
+  
+  haulsList[[h]]$catch_wsh <- extractedFishWeigthList # catch weight single herrings
+  
+}
+
+# For sprat
+for(h in 1:length(haulsList)){
+
+  extractedFishWeigthList = c()
+  weightSingleSprat = 0
+  
+  while(weightSingleSprat<(haulsList[[h]]$catch_w*haulsList[[h]]$p_spr)){
+    # Extract a fish according to weight distribution 
+    extractedFishWeigth <- as.numeric(sample(names(wf_spr), size=1, prob=wf_spr))
+    
+    # Print
+    cat(paste0("I extracted a sprat weighting: ", extractedFishWeigth, ". Hence, ", (haulsList[[h]]$catch_w*haulsList[[h]]$p_spr) - weightSingleSprat, " kg remain to be sampled."), "\n")
+    
+    # Append the extracted fish 
+    extractedFishWeigthList <- c(extractedFishWeigthList, extractedFishWeigth)
+    
+    # Update the weight of the sample
+    weightSingleSprat <- sum(weightSingleSprat, extractedFishWeigth)
+    
+  }  
+  
+  haulsList[[h]]$catch_wss <- extractedFishWeigthList # catch weight single spr
+  
+}
+
+## P5: Check results
+# Extract the weights sampled for each haul
+checkDf <- do.call(
+  rbind, 
+  lapply(
+    1:length(haulsList), 
+    function(x) data.frame(
+      rbind(
+        data.frame(
+          haul = paste(x), 
+          species = "Sprat", 
+          weights = haulsList[[x]]$catch_wss
+          ), 
+        data.frame(
+          haul = paste(x), 
+          species = "Herring", 
+          weights = haulsList[[x]]$catch_wsh          
+        ) 
+      )
+    )
+  )
+)
+
+# Plot
+ggplot(checkDf) + 
+    geom_histogram(
+      aes(
+        x = weights, 
+        fill = haul), 
+      bins = 10
+    ) +  
+    labs(x = "Weight", y = "Frequency") + 
+    theme_bw() + 
+    theme(
+      legend.position = "bottom", 
+      plot.title = element_text(hjust = .5),
+      strip.background = element_rect(
+        fill = "black"
+      ), 
+      strip.text = element_text(
+        color = "white"
+      )
+    ) + 
+  facet_wrap(~species, scales = "free")
+
+## P5: Build haul array 
+# The haul array is a 3d matrix which specify species weight, volume for each fish in each haul. 
+for(h in 1:length(haulsList)){
+  cat(paste0("Process haul: ", h, "\n"))
+  
+  # Generate fish identifier matrix 
+  matIdHer <- matrix(1:length(haulsList[[h]]$catch_wsh), length(haulsList[[h]]$catch_wsh), 1) # One column, each row is a herring fish  with the number of matrix rows being the number of weights extracted above. 
+  matIdSpr <- matrix((length(haulsList[[h]]$catch_wsh)+1):(length(haulsList[[h]]$catch_wsh)+length(haulsList[[h]]$catch_wss)), length(haulsList[[h]]$catch_wss), 1) # One column, each row is a sprat fish with the number of matrix rows being the number of weights extracted above. 
+  matIdSpecies <- c(matIdHer, matIdSpr) # connect the two matrices 
+  
+  # Generate species species matrix 
+  matSpeciesHer <- matrix("herring", length(haulsList[[h]]$catch_wsh), 1) # One column, each row is a herring fish  with the number of matrix rows being the number of weights extracted above. 
+  matSpeciesSpr <- matrix("sprat", length(haulsList[[h]]$catch_wss), 1) # One column, each row is a sprat fish with the number of matrix rows being the number of weights extracted above. 
+  matSpeciesSpecies <- rbind(matSpeciesHer, matSpeciesSpr) # connect the two matrices 
+  
+  # Extract species weights matrix
+  matWeightsHer <- matrix(haulsList[[h]]$catch_wsh, length(haulsList[[h]]$catch_wsh), 1) # One column, each row is a weight with the weight extracted above. 
+  matWeightsSpr <- matrix(haulsList[[h]]$catch_wss, length(haulsList[[h]]$catch_wss), 1) # One column, each row is a weight with the weight extracted above. 
+  matWeightsSpecies <- rbind(matWeightsHer, matWeightsSpr) # connect the two matrices 
+  
+  # Generate species volume matrix
+  matVolumeHer <- matWeightsHer/932.274568364 # density her = 932.274568364 gram/
+  matVolumeSpr <- matWeightsSpr/852.182251494 # density spr = 852.182251494 gram/liter
+  matVolumeSpecies <- rbind(matVolumeHer, matVolumeSpr) # connect the two matrices 
+  
+  # Gather the matrices the final array 
+  haulArray <- array(c(matIdSpecies, matSpeciesSpecies, matWeightsSpecies, matVolumeSpecies), c((length(haulsList[[h]]$catch_wsh) + length(haulsList[[h]]$catch_wss)),1,4))
+  
+  # Mix the catch 
+  indexes <- sample(1:nrow(haulArray)) # Defines the random order of elements in each of the matrices 
+  for(fishFeature in 1:dim(haulArray)[3]){ # Each of the features (vol, weight, species) gets reordered with the same random order
+    haulArray[,,fishFeature] <- haulArray[indexes,,fishFeature]
   }
+  
+  # Get rid of the information on weights for herring and sprat in haulsList
+  haulsList[[h]] <- haulsList[[h]][-c(4,5)]  
+  
+  # Append haulArray to haulList
+  haulsList[[h]][length(haulsList[[h]])+1] <- list(haulArray)
+  names(haulsList[[h]]) <- c("catch_w", "p_herring", "p_sprat", "fishes")   
+  
+  # Turn in numbers the species
+  haulsList[[h]]$fishes[,,2] <- ifelse(haulsList[[h]]$fishes[,,2] == "herring", 1, 2)
+  
+}
 
 ## P3: Try to extract n samples
 #  If we sample from these a very high number of times, we should obtain the probability given.
-#  For instance the proportions in haul 1 were
-haulsList[[1]][2] # For herring
-haulsList[[1]][3] # For sprat
+#  For instance the proportions in haul 2 were
+haulsList[[2]][2] # For herring
+haulsList[[2]][3] # For sprat
 replics = 100000  # Thus resampling 100000 times from our speciesVector in haul 1 we expect to reach these numbers
-#prop.table(table(replicate(replics,dqsample(as.numeric(unlist(haulsList[[1]][4])), 1, replace = F))))
+checkDf <- data.frame(
+  cbind(
+    species = ifelse(haulsList[[2]]$fishes[,1,2] == 1, "herring", "sprat"), 
+    weight = haulsList[[2]]$fishes[,1,3]
+    )  
+)
+checkDf <- checkDf[replicate(replics,dqsample(1:nrow(checkDf), 1, replace = F)), ]
+checkDf$weight <- as.numeric(checkDf$weight)
+round(tapply(checkDf$weight, checkDf$species, sum)/sum(checkDf$weight)*100, 2) # These should reflect haulsList[[2]][2] # For herring and haulsList[[2]][3] # For sprat
+prop.table(table(ifelse(haulsList[[3]]$fishes[,,2] == 1, "herring", "sprat"))) # and the proportion of fishes. 
+
+
+## P4: We finally obtain the features of the haul enclosed in the haulList object: 
+# For instance for the first haul
+haulsList$Haul_1 # Content of the first haul
+haulsList$Haul_1$catch_w # Catch in the first haul
+haulsList$Haul_1$p_herring # Proportion of herring in the first haul
+haulsList$Haul_1$p_sprat # Proportion of sprat in the first haul
+haulsList$Haul_1$fishes[,,1] # Identifier of the single fishes in the first haul
+haulsList$Haul_1$fishes[,,2] # Species of the single fishes in the first haul
+haulsList$Haul_1$fishes[,,3] # Weight of the single fishes in the first haul
+haulsList$Haul_1$fishes[,,4] # Volume of the single fishes in the first haul
 
 ########################################################################################
 #
