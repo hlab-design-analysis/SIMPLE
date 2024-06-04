@@ -34,7 +34,12 @@ drawTank <- function(
     )
   
   if(plot == 1){
-    drawTank <- drawTank %>% filter(Var3 == 2)
+    if(type == "species"){
+      drawTank <- drawTank %>% filter(Var3 == 2)  
+    } else if(type == "hauls"){
+      drawTank <- drawTank %>% filter(Var3 == 5) 
+    }
+    
     ggplot(data = drawTank, aes(Var2, Var1, fill = value)) +
       geom_tile() +
       #facet_wrap(.~fac) +
@@ -53,7 +58,7 @@ drawTank <- function(
         ) 
       } else if(type == "hauls"){
         scale_fill_focus(
-          c({{unique(melt(TANK)$value)[unique(melt(TANK)$value)!=0]}}),
+          c({{unique(drawTank$value)[unique(drawTank$value)!=0]}}),
           color_other = "black"
         ) 
       }

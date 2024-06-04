@@ -360,8 +360,8 @@ for(h in 1:length(haulsList)){
   matWeightsSpecies <- rbind(matWeightsHer, matWeightsSpr) # connect the two matrices 
   
   # Generate species volume matrix
-  matVolumeHer <- matWeightsHer/932.274568364 # density her = 932.274568364 gram/
-  matVolumeSpr <- matWeightsSpr/852.182251494 # density spr = 852.182251494 gram/liter
+  matVolumeHer <- (matWeightsHer*1000)/932.274568364 # density her = 932.274568364 gram/
+  matVolumeSpr <- (matWeightsSpr*1000)/852.182251494 # density spr = 852.182251494 gram/liter
   matVolumeSpecies <- rbind(matVolumeHer, matVolumeSpr) # connect the two matrices 
   
   # Gather the matrices the final array 
@@ -445,68 +445,94 @@ tank <- buildTank(
 #
 ########################################################################################
 
-unlist(haulsList$Haul_1$fishes[,,1])
-
 ## P1: Pour the fishes in the tank
 # First, we need to take into account the eventual presence of different hauls and their magnitude. 
 if(nHaul == 1){
-  # Select position at random in the tank matrix 
-  positions <- dqsample(length(tank), W[1])
   
-  # Fill these position with the fishes in the haul 
-  tank[positions] <- as.numeric(unlist(haulsList$Haul_1$speciesVector))
+  # Select random position in the first layer of the matrix. 
+  positions <- dqsample(length(tank)/5, length(haulsList[[1]]$fishes[,,1])) # The "/4" serves to consider only the first dimension of the tank array
+  tank[positions] <- as.numeric(unlist(haulsList[[1]]$fishes[,,1])) # Send the identifier of the fish to the first layer of the matrix
+  tank[positions+((length(tank)/5)*1)] <- as.numeric(unlist(haulsList[[1]]$fishes[,,2])) # Estrapolate the same position on the second layer of the tank matrix and add species accordingly
+  tank[positions+((length(tank)/5)*2)] <- as.numeric(unlist(haulsList[[1]]$fishes[,,3])) # Estrapolate the same position on the third layer of the tank matrix and add weight accordingly
+  tank[positions+((length(tank)/5)*3)] <- as.numeric(unlist(haulsList[[1]]$fishes[,,4])) # Estrapolate the same position on the fourth layer of the tank matrix and add volume accordingly
+  tank[positions+((length(tank)/5)*4)] <- "Haul_1" # Add haul of origin
   
   # Show the results (one could imagine that this is a random time when fishes are falling into the tank from above)
   if(bigTank == 1){
     tankR <- apply(tank, 2, rev)
     image(t(tankR))
   }else{
-    drawTank(tank, plot = 1)  
+    tankDraw <- tank
+    tankDraw[,,2] <- ifelse(tankDraw[,,2]=="1", "herring","sprat")
+    drawTank(tankDraw, plot = 1, type = "species")  
   }
   
 } else {
   
   ## In case more than one haul are involved it is a bit trickier, due to the way R indexes matrices. 
   # First we need to assign increasing numbers by row to the tank matrix, as R use columns to index. 
-  tank <- matrix(1:(tankHeight*tankLength),tankHeight,tankLength,byrow = T) # Fill it with numbers from first two last cell, R will fill column
-  tank <- tank[nrow(tank):1,] # To mimic that the bottom is the first to fill, we flip it also vertically
+  tanK <- matrix(1:(tankHeight*tankLength), tankHeight, tankLength, byrow = T) # Fill it with numbers from first two last cell, R will fill column
+  tanK <- tanK[nrow(tanK):1,] # To mimic that the bottom is the first to fill, we flip it also vertically
   # Now the bottom left cell of the matrix value is 1, the right top cell value is length(tank) - the maximum. 
   
-  # Second, we divide the tank matrix proportionally to the magnitude of the haul.
-  propTank <- floor(length(tank)*prop.table(N)) 
-
+  # Extract the number of fishes in the set of hauls 
+  for(h in 1:nHaul){
+      nFish_temp <- length(haulsList[[h]]$fishes[,,2])
+    if(h == 1){
+      nFish <- nFish_temp
+    }else{
+      nFish <- c(nFish, nFish_temp)
+    }
+  }
+  
+  # Extract the volume of fishes in the set of hauls 
+  for(h in 1:nHaul){
+      vFish_temp <- sum(as.numeric(haulsList[[h]]$fishes[,,4]))
+    if(h == 1){
+      vFish <- vFish_temp
+    }else{
+      vFish <- c(vFish, vFish_temp)
+    }
+  }
+  
+  # Second, we extract the proportion of volume each hauls occupies and thus the cell on the first layer representing that proportion
+  propTank <- floor(length(tanK)*prop.table(vFish)) 
+  
   # Third we create a list where to store the position by haul 
   positions = as.list(rep(NA, nHaul))
   names(positions) <- paste0("Haul_", 1:length(positions))
-    
-  # Allow to sample by haul only in the region of cells proportional to the magnitude of the haul
+  
+   # Allow to sample by haul only in the region of cells proportional to the magnitude of the haul
   # Start from the bottom with the first haul
-
   for(i in 1:nHaul){
     
     if(i == 1){ # When i equal to 1, we treat the first haul hence we need to start from bottom of matrix
-
+      
       # Identify the cell value until, starting from the bottom of the tank, which the tank matrix may be occupated
       regionOccupable_start <- 1 # Indeed the first cell to start is the one bottom left, for which tank == 1. 
-      regionOccupable_end <- propTank[1] # propTank[1] is the limit cell of the region that the haul 1 is allowed to occupy given its magnitude.
+      regionOccupable_end <- propTank[i] # propTank[1] is the limit cell of the region that the haul 1 is allowed to occupy given its magnitude.
       
       # Select position at random in the tank matrix
       positions[i] <- list(
         dqsample(
           which(
-            tank %in% regionOccupable_start:ifelse(
-                regionOccupable_end<regionOccupable_start,
-                (regionOccupable_start + regionOccupable_end),
-                regionOccupable_end
-                )
-            ), 
-            N[i], 
-            replace = F
+            tanK %in% regionOccupable_start:ifelse(
+              regionOccupable_end<regionOccupable_start,
+              (regionOccupable_start + regionOccupable_end),
+              regionOccupable_end
             )
-          )
+          ), 
+          nFish[i], 
+          replace = F
+        )
+      )
       
       # Assign the fishes in the haul to the positions
-      tank[as.numeric(unlist(positions[i]))] <- ifelse(as.numeric(unlist(haulsList[[i]][4])) == 1, "herring", "sprat") # Here we need to go back to character notation to avoid confusion between numbers used for index and 1 and two used for the species
+      tank[as.numeric(unlist(positions[i]))] <- as.numeric(unlist(haulsList[[i]]$fishes[,,i])) # Send the identifier of the fish to the first layer of the matrix
+      tank[as.numeric(unlist(positions[i]))+((length(tank)/5)*1)] <- as.numeric(unlist(haulsList[[i]]$fishes[,,2])) # Estrapolate the same position on the second layer of the tank matrix and add species accordingly
+      tank[as.numeric(unlist(positions[i]))+((length(tank)/5)*2)] <- as.numeric(unlist(haulsList[[i]]$fishes[,,3])) # Estrapolate the same position on the third layer of the tank matrix and add weight accordingly
+      tank[as.numeric(unlist(positions[i]))+((length(tank)/5)*3)] <- as.numeric(unlist(haulsList[[i]]$fishes[,,4])) # Estrapolate the same position on the fourth layer of the tank matrix and add volume accordingly
+      tank[as.numeric(unlist(positions[i]))+((length(tank)/5)*4)] <- "Haul_1" # Add haul of origin
       
     } else { # When between 1 and nHaul we need to start from the previous haul to the next
       
@@ -518,43 +544,32 @@ if(nHaul == 1){
       positions[i] <- list(
         dqsample(
           which(
-            tank %in% regionOccupable_start:ifelse(
+            tanK %in% regionOccupable_start:ifelse(
               regionOccupable_end<regionOccupable_start,
               (regionOccupable_start + regionOccupable_end),
               regionOccupable_end
-              )
-            ), 
-            N[i], 
-            replace = F
             )
-          )
+          ), 
+          nFish[i], 
+          replace = F
+        )
+      )
       
       # Assign the fishes in the haul to the positions
-      tank[as.numeric(unlist(positions[i]))] <- ifelse(as.numeric(unlist(haulsList[[i]][4])) == 1, "herring", "sprat") # Here we need to go back to character notation to avoid confusion between numbers used for index and 1 and two used for the species
-      
+      tank[as.numeric(unlist(positions[i]))] <- as.numeric(unlist(haulsList[[i]]$fishes[,,i])) # Send the identifier of the fish to the first layer of the matrix
+      tank[as.numeric(unlist(positions[i]))+((length(tank)/5)*1)] <- as.numeric(unlist(haulsList[[i]]$fishes[,,2])) # Estrapolate the same position on the second layer of the tank matrix and add species accordingly
+      tank[as.numeric(unlist(positions[i]))+((length(tank)/5)*2)] <- as.numeric(unlist(haulsList[[i]]$fishes[,,3])) # Estrapolate the same position on the third layer of the tank matrix and add weight accordingly
+      tank[as.numeric(unlist(positions[i]))+((length(tank)/5)*3)] <- as.numeric(unlist(haulsList[[i]]$fishes[,,4])) # Estrapolate the same position on the fourth layer of the tank matrix and add volume accordingly
+      tank[as.numeric(unlist(positions[i]))+((length(tank)/5)*4)] <- paste0("Haul_", i)  # Add haul of origin
+  
     }
     
-   
-      
+    # Turn NA into zeros
+    tank <- ifelse(is.na(tank), 0, tank)
+  
   }
-  
-  tank <- ifelse(
-    tank == "herring", 
-    1, 
-    ifelse(
-      tank == "sprat",
-      2,
-      0
-      )
-    ) # Here we need to go back to character notation to avoid confusion between numbers used for index and 1 and two used for the species
-  
-  # Finally we produce a twin matrix reporting the fishes with the same position but with information of the haul of origin
-  haulsTankDf <- melt(positions)
-  tankHaulsTwinMatrix <- tank
-  tankHaulsTwinMatrix[haulsTankDf$value] <- haulsTankDf$L1
-  
 }
-
+    
 ## P3: Plot the result of the pouring for the main tank matrix
 drawTank(tank, plot = 1, type = "species")
 
@@ -564,6 +579,9 @@ ggarrange(
   drawTank(tankHaulsTwinMatrix, plot = 1, type = "hauls")
 )
 
+drawTank(tank, plot = 1, type = "hauls")
+
+tankHaulsTwinMatrix
 
 ########################################################################################
 #

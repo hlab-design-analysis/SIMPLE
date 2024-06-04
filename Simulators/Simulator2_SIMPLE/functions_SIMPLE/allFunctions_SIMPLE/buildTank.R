@@ -30,7 +30,7 @@ buildTank <- function(
   ){
   
   ## Build the tank array 
-  tank <- array(NA, list(tankHeight,tankLength,4))
+  tank <- array(NA, list(tankHeight,tankLength,5))
   
   if(plot == 1){
     if(bigTank == 1){
