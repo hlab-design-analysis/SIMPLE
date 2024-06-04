@@ -576,12 +576,8 @@ drawTank(tank, plot = 1, type = "species")
 ## P3: Plot the result of the pouring including the haul tank twin matrix 
 ggarrange(
   drawTank(tank, plot = 1, type = "species"),
-  drawTank(tankHaulsTwinMatrix, plot = 1, type = "hauls")
+  drawTank(tank, plot = 1, type = "hauls")
 )
-
-drawTank(tank, plot = 1, type = "hauls")
-
-tankHaulsTwinMatrix
 
 ########################################################################################
 #
