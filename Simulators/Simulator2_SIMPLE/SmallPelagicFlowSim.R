@@ -590,21 +590,14 @@ ggarrange(
 ########################################################################################
 
 ## P1: Sink the fishes for the main tank matrix
-for(j in 1:ncol(tank)){
-  tank <- ifelse(tank == 0, NA,tank)
-  recFullCol <- tank[!is.na(tank[,j]),j]
-  nRecFullCol <- length(recFullCol)
-  tank[,j] <- c(rep(NA, tankHeight-nRecFullCol), recFullCol)
+for(d in 1:dim(tank)[3]){
+  for(j in 1:ncol(tank[,,d])){
+    tank[,,d] <- ifelse(tank[,,d] == 0, NA,tank[,,d])
+    recFullCol <- tank[!is.na(tank[,j,d]),j,d]
+    nRecFullCol <- length(recFullCol)
+    tank[,j,d] <- c(rep(NA, tankHeight-nRecFullCol), recFullCol)
+  }  
 }
-
-## P1: Sink the fishes for the haul tank twin matrix
-for(j in 1:ncol(tank)){
-  tankHaulsTwinMatrix <- ifelse(tankHaulsTwinMatrix == 0, NA,tankHaulsTwinMatrix)
-  recFullCol <- tankHaulsTwinMatrix[!is.na(tankHaulsTwinMatrix[,j]),j]
-  nRecFullCol <- length(recFullCol)
-  tankHaulsTwinMatrix[,j] <- c(rep(NA, tankHeight-nRecFullCol), recFullCol)
-}
-tankHaulsTwinMatrix <- ifelse(is.na(tankHaulsTwinMatrix), 0, tankHaulsTwinMatrix)
 
 ## P3: Plot the results for the main tank matrix
 if(bigTank == 1){
@@ -617,7 +610,7 @@ if(bigTank == 1){
 ## P4: Plot the results including the haul tank twin matrix
 ggarrange(
   drawTank(tank, plot = 1, type = "species"),
-  drawTank(tankHaulsTwinMatrix, plot = 1, type = "hauls")
+  drawTank(tank, plot = 1, type = "hauls")
 )
 
 ########################################################################################
