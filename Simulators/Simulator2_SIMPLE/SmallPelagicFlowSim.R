@@ -580,7 +580,6 @@ ggarrange(
 # Check results
 # as.numeric(table(tank[,,2])["1"]) == sum(table(haulsList$Haul_1$fishes[,,2])["1"], table(haulsList$Haul_2$fishes[,,2])["1"], table(haulsList$Haul_3$fishes[,,2])["1"]) # Should be T
 
-
 ########################################################################################
 #
 # Sink fishes to the bottom of the tank ----
@@ -635,7 +634,8 @@ flowtube <- buildTube(
 #
 ########################################################################################
 ## P1: Build the connection between tank and tube
-suppressMessages(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1))
+suppressMessages(drawFlow(tank, flowtube, pIndicator = 0, sizeLabelText = .1))
+
 
 ## P2: Add proportion revealed at different intervals of the connection between tank and tube
 suppressMessages(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1))
