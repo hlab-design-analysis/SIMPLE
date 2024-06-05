@@ -85,7 +85,7 @@ load ("~/Public_Eros/SIMPLE/Simulators/Simulator1_SIMPLE/001_Inputs_SimRealHaul/
 # Catch properties
 nHaul = 3 # Number of hauls
 p_herring = c(0.1, 0.2, 0.3) # Proportion of herring. If nHaul > 1, use vector with one value per each
-W = c(500, 200, 600) # Catch of both species If nHaul > 1, use vector with one value per each
+W = c(50, 20, 60) # Catch of both species If nHaul > 1, use vector with one value per each
 
 # Tank properties
 tankHeight = 800
@@ -657,27 +657,29 @@ ltb <- list(flowtube)
 
 # The following lines avoid to produce an empty frame when saving the plot, this happens for time being multiplier of tank width x tube height, as there are no more fishes in the last tank row
 toAvoid <- which(1:timeSteps %% (tankLength/heightTube) == 0) + 1
+# Avoid the coord fixed message, credits: https://github.com/tidyverse/ggplot2/issues/2799
+cf <- coord_fixed() 
+cf$default <- T
 
-while(!all(is.na(tank))){
+while(!all(is.na(tank[,,1]))){
   
   for(t in 1:timeSteps){
     
     if(t == 1){
       
       tankRow <- tankHeight # We speicify the row of the Tank we are sampling
-      cat("\n", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),])), "\n")
+      cat("\n", "Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,])), "\n")
       
-      positionExitRow <- sample(which(!is.na(tank[nrow(tank),])), 10) # Here we sample in the last row the position of the fishes that will exit
-      flowtube[c(1:heightTube),1] <- tank[nrow(tank),positionExitRow] # These fishes enter the tube, while 
-      tank[nrow(tank), positionExitRow] <- NA # Their position in the tank are turned to NA 
+      positionExitRow <- sample(which(!is.na(tank[nrow(tank),,1])), 10) # Here we sample in the last row the position of the fishes that will exit
+      flowtube[c(1:heightTube),1,] <- tank[nrow(tank),positionExitRow,] # These fishes enter the tube, while 
+      tank[nrow(tank), positionExitRow,] <- NA # Their position in the tank are turned to NA 
       ltb[[2]] <- flowtube # We save the result in a step of the flowtube time list
       # ltk[[2]] <- tank  # We save the result in a step of the tank time list - avoided, ends up exhausting the memory
       t <- t + 1 # We specify we moved away from the start
       #print(flowtube[,1:10]) # We print the results
-      
         
       if((!t %in% toAvoid)){ # The second part is due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
-        plotUpdate <- drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1) # This plot an update of the flow  
+        plotUpdate <- suppressMessages(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
       }
       
       if(saveFlow == 1 & (!t %in% toAvoid)){ # The second part is due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
@@ -719,15 +721,16 @@ while(!all(is.na(tank))){
       }
       
     } else {
-      if(sum(!is.na(tank[nrow(tank),])) >= heightTube ){ # If more than 10 elements are present in the last row of the tank, we extract 10 randomly
+      
+      if(sum(!is.na(tank[nrow(tank),,])) >= heightTube ){ # If more than 10 elements are present in the last row of the tank, we extract 10 randomly
         
-        cat("\n", "Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),])), "\n", "\n")
+        cat("Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,])), "\n")
         
-        positionExitRow <- sample(which(!is.na(tank[nrow(tank),])), heightTube) # Here we sample in the last row the position of the fishes that will exit
-        flowtube[,2:lengthTube] <- flowtube[,1:lengthTube-1] # Here we shift plus one to the right the tube matrix to simulate flow
-        flowtube[,1] <- NA # The first column of the tube matrix is duplicated at this stage on the second column, we fill it empty 
-        flowtube[c(1:heightTube),1] <- tank[nrow(tank),positionExitRow] # We replace the first column with values sampled from the tank last row. 
-        tank[nrow(tank), positionExitRow] <- NA # Their position in the tank are turned to NA 
+        positionExitRow <- sample(which(!is.na(tank[nrow(tank),,1])), heightTube) # Here we sample in the last row the position of the fishes that will exit
+        flowtube[,2:lengthTube,] <- flowtube[,1:lengthTube-1,] # Here we shift plus one to the right the tube matrix to simulate flow
+        flowtube[,1,] <- NA # The first column of the tube matrix is duplicated at this stage on the second column, we fill it empty 
+        flowtube[c(1:heightTube),1,] <- tank[nrow(tank),positionExitRow,] # We replace the first column with values sampled from the tank last row. 
+        tank[nrow(tank), positionExitRow,] <- NA # Their position in the tank are turned to NA 
         
         ltb[[2+t]] <- flowtube # We save the result in a step of the tube time list
         # ltk[[2+t]] <- tank  # We save the result in a step of the tank time list  - avoided, ends up exhausting the memory
@@ -736,7 +739,7 @@ while(!all(is.na(tank))){
         
           
         if((!t %in% toAvoid)){ # The second part is due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
-          plotUpdate <- drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1) # This plot an update of the flow  
+          plotUpdate <- suppressMessages(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
         }
         
         if(saveFlow == 1){ 
@@ -779,20 +782,20 @@ while(!all(is.na(tank))){
           
         if(plotFlow == 1 & t %/% plotFlowEach %in% seq(plotFlowEach, timeSteps, plotFlowEach)){ # This plot every plotFlowEach iteration as specified
           
-          print(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1)) # Try and plot results
+          print(suppressMessages(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1))) # Try and plot results
           
         }
           
         
-      } else if (sum(!is.na(tank[nrow(tank),])) < heightTube & sum(!is.na(tank[nrow(tank),])) >=1) { # If more less than 10 elements are present in the last row of the tank, we extract what is there
+      } else if (sum(!is.na(tank[nrow(tank),,])) < heightTube & sum(!is.na(tank[nrow(tank),,])) >=1) { # If more less than 10 elements are present in the last row of the tank, we extract what is there
         
-        cat("\n", "Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),])), "\n", "\n")
+        cat("Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,])), "\n")
         
-        positionExitRow <- which(!is.na(tank[nrow(tank),])) # No need to sample in this case, all fishes left in the bottom matrix row are selected to move in the tube 
-        flowtube[,2:lengthTube] <- flowtube[,1:lengthTube-1] # Here we shift plus one to the right the tube matrix to simulate flow
-        flowtube[,1] <- NA # The first column of the tube matrix is duplicated at this stage on the second column, we fill it empty 
-        flowtube[c(1:heightTube),1] <- c(tank[nrow(tank),positionExitRow], rep(NA, heightTube-length(tank[nrow(tank),positionExitRow]))) # Here a bit of pulsation is allowed between one row and the other (NA value when fishes in the bottom row are <10) 
-        tank[nrow(tank), positionExitRow] <- NA # Their position in the tank are turned to NA 
+        positionExitRow <- which(!is.na(tank[nrow(tank),,1])) # No need to sample in this case, all fishes left in the bottom matrix row are selected to move in the tube 
+        flowtube[,2:lengthTube,] <- flowtube[,1:lengthTube-1,] # Here we shift plus one to the right the tube matrix to simulate flow
+        flowtube[,1,] <- NA # The first column of the tube matrix is duplicated at this stage on the second column, we fill it empty 
+        flowtube[c(1:heightTube),1,] <- c(tank[nrow(tank),positionExitRow,], rep(NA, heightTube-length(tank[nrow(tank),positionExitRow,1]))) # Here a bit of pulsation is allowed between one row and the other (NA value when fishes in the bottom row are <10) 
+        tank[nrow(tank), positionExitRow,] <- NA # Their position in the tank are turned to NA 
         
         ltb[[2+t]] <- flowtube # We save the result in a step of the tube time list
         # ltk[[2+t]] <- tank  # We save the result in a step of the tank time list  - avoided, ends up exhaust the memory
@@ -802,7 +805,7 @@ while(!all(is.na(tank))){
        
         
         if((!t %in% toAvoid)){ # Due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
-          plotUpdate <- drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1) # This plot an update of the flow  
+          plotUpdate <- suppressMessages(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
         }
         
         if(saveFlow == 1){
@@ -845,20 +848,20 @@ while(!all(is.na(tank))){
         
         if(plotFlow == 1 & t %/% plotFlowEach %in% seq(plotFlowEach, timeSteps, plotFlowEach)){ # This plot every plotFlowEach iteration as specified
           
-          print(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1)) # Try and plot results
+          print(suppressMessages(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1))) # Try and plot results
           
         }
         
       } else { # It means that zero element are present in the last row of the tank it means that we need to replace this row with the one above
         
-        cat("\n", "Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),])), "\n", "\n")
+        cat("Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,])), "\n")
         cat("Tank matrix row", tankRow, "completed. Proceeding with tank matrix row", tankRow + 1, "\n")
         
         tankRow <- tankRow - 1 # We speicify the row of the Tank we are sampling
-        tank <- rbind(rep(NA, ncol(tank)), tank[-tankHeight,])  # Here we shift plus one to the right the tube matrix to simulate flow
+        tank <- rbind(rep(NA, ncol(tank)), tank[-tankHeight,,])  # Here we shift plus one to the right the tube matrix to simulate flow
        
         if(plotFlow == 1 & t %/% plotFlowEach %in% seq(plotFlowEach, timeSteps, plotFlowEach)){ # This plot every plotFlowEach iteration as specified
-          print(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1)) # Try and plot results
+          print(suppressMessages(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1))) # Try and plot results
         }
         
       }
@@ -870,10 +873,13 @@ while(!all(is.na(tank))){
   cat("\n", "\n", "\n", "Completed", "\n", "\n", "\n")
   
   if(plotFlow == 1){ # This plot every plotFlowEach iteration as specified
-    print(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1)) # Try and plot results
+    print(suppressMessages(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1))) # Try and plot results
   }
   
 }
+
+# Some element in the tube list still resulting NULL - delete them. 
+ltb <- ltb[-which(lapply(ltb, function(x) is.null(x)) %>% unlist)]
 
 ## P2: Save the resulting matrix
 save(ltb, file = "~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/Sim_3_mtx.RData")
