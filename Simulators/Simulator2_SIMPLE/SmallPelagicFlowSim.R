@@ -463,13 +463,12 @@ if(nHaul == 1){
     image(t(tankR))
   }else{
     tankDraw <- tank
-    tankDraw[,,2] <- ifelse(tankDraw[,,2]=="1", "herring","sprat")
     drawTank(tankDraw, plot = 1, type = "species")  
   }
   
 } else {
   
-  ## In case more than one haul are involved it is a bit trickier, due to the way R indexes matrices. 
+  ## In case more than one haul is involved it is a bit trickier, due to the way R indexes matrices. 
   # First we need to assign increasing numbers by row to the tank matrix, as R use columns to index. 
   tanK <- matrix(1:(tankHeight*tankLength), tankHeight, tankLength, byrow = T) # Fill it with numbers from first two last cell, R will fill column
   tanK <- tanK[nrow(tanK):1,] # To mimic that the bottom is the first to fill, we flip it also vertically
@@ -537,18 +536,15 @@ if(nHaul == 1){
     } else { # When between 1 and nHaul we need to start from the previous haul to the next
       
       # Update the cell value with the value until, starting from the value of the previous haul of the tank,  the tank matrix may be occupied
-      regionOccupable_start <- propTank[i-1]
-      regionOccupable_end <- propTank[i]
+      regionOccupable_start <- ifelse(i==1, 1, ifelse(i==2, propTank[i-1], sum(propTank[1:(i-1)])))
+      regionOccupable_end <- ifelse(i==1, propTank[i], propTank[i]+sum(propTank[1:(i-1)]))
+       
       
       # Select position at random in the tank matrix
       positions[i] <- list(
         dqsample(
           which(
-            tanK %in% regionOccupable_start:ifelse(
-              regionOccupable_end<regionOccupable_start,
-              (regionOccupable_start + regionOccupable_end),
-              regionOccupable_end
-            )
+            tanK %in% regionOccupable_start:regionOccupable_end
           ), 
           nFish[i], 
           replace = F
@@ -562,22 +558,28 @@ if(nHaul == 1){
       tank[as.numeric(unlist(positions[i]))+((length(tank)/5)*3)] <- as.numeric(unlist(haulsList[[i]]$fishes[,,4])) # Estrapolate the same position on the fourth layer of the tank matrix and add volume accordingly
       tank[as.numeric(unlist(positions[i]))+((length(tank)/5)*4)] <- paste0("Haul_", i)  # Add haul of origin
   
+    
     }
     
     # Turn NA into zeros
     tank <- ifelse(is.na(tank), 0, tank)
-  
+
   }
 }
     
 ## P3: Plot the result of the pouring for the main tank matrix
 drawTank(tank, plot = 1, type = "species")
+drawTank(tank, plot = 1, type = "hauls")
 
 ## P3: Plot the result of the pouring including the haul tank twin matrix 
 ggarrange(
   drawTank(tank, plot = 1, type = "species"),
   drawTank(tank, plot = 1, type = "hauls")
 )
+
+# Check results
+# as.numeric(table(tank[,,2])["1"]) == sum(table(haulsList$Haul_1$fishes[,,2])["1"], table(haulsList$Haul_2$fishes[,,2])["1"], table(haulsList$Haul_3$fishes[,,2])["1"]) # Should be T
+
 
 ########################################################################################
 #
