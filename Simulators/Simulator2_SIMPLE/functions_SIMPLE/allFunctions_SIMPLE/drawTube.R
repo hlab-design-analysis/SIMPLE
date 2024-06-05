@@ -26,18 +26,24 @@ drawTube <- function(
   TUBE,  # This is a pre-existing matrix filled with a catch
   plot = c(1,0), legend = c(1,0) # Should the tube be plotted when ready
   ){
+  
   drawTube <- TUBE %>% 
-    data.frame() %>% 
-    tibble::rownames_to_column() %>% 
-    melt %>% 
+    melt %>%
+    filter(Var3 == 1) %>% 
+    select(-Var3) %>% 
+    dplyr::rename(
+      column = Var2,
+      row = Var1, 
+      value = value
+    ) %>% 
     mutate(
-      variable = as.numeric(gsub("X", "", variable)),
-      rowname = as.numeric(rowname), 
-      value = as.factor(value)
-    ) 
+      value = as.character(value)
+    )
   
   if(plot == 1){
-    plotTube <- ggplot(data = drawTube, aes(variable, rowname, fill = value)) +
+    plotTube <- ggplot(
+      data = drawTube, aes(column, row, fill = value)
+      ) +
       geom_tile() +
       #facet_wrap(.~fac) +
       labs(y = "Tube height (fishes)", x = "Tube length (fishes)", fill = "Species") + 
