@@ -40,7 +40,18 @@ calculateProportionMatrix <- function(
     
     pHerring <- as.numeric(prop.table(table(mat == 1))["TRUE"])
     pSprat <- as.numeric(prop.table(table(mat == 2))["TRUE"])
-    nFishes_all <- sum(N)
+    
+    # Extract the number of fishes in the set of hauls 
+    for(h in 1:nHaul){
+      nFish_temp <- length(haulsList[[h]]$fishes[,,2])
+      if(h == 1){
+        nFish <- nFish_temp
+      }else{
+        nFish <- c(nFish, nFish_temp)
+      }
+    }
+    
+    nFishes_all <- sum(nFish)
     pFlowPlotDf <- data.frame(
       station = ifelse(typeMatrix == "tank", c("tank_all", "tank_all"), c("tube_all", "tube_all")),
       species = c("herring", "sprat"),
