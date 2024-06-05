@@ -67,13 +67,12 @@ calculateProportionMatrix <- function(
      
       divisionFactor = case_when( # Remember that we are looking at the matrix upside down in the tank case
         sensor == 1 ~ nrow(mat)^(-1),
-        sensor == 25 ~ 0.75, 
+        sensor == 25 ~ 0.25, 
         sensor == 50 ~ 0.50,
-        sensor == 75 ~ 0.25,
+        sensor == 75 ~ 0.75,
         sensor == 100 ~ 1
       )  
     
-      
     } else {
       if(typeSensor == "single"){
         
