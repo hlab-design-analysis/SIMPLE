@@ -85,10 +85,10 @@ load ("~/Public_Eros/SIMPLE/Simulators/Simulator1_SIMPLE/001_Inputs_SimRealHaul/
 # Catch properties
 nHaul = 3 # Number of hauls
 p_herring = c(0.1, 0.2, 0.3) # Proportion of herring. If nHaul > 1, use vector with one value per each
-W = c(50, 200, 100) # Catch of both species If nHaul > 1, use vector with one value per each
+W = c(500, 200, 600) # Catch of both species If nHaul > 1, use vector with one value per each
 
 # Tank properties
-tankHeight = 700
+tankHeight = 800
 tankLength = 500
 bigTank = 0
 
@@ -495,7 +495,7 @@ if(nHaul == 1){
   }
   
   # Second, we extract the proportion of volume each hauls occupies and thus the cell on the first layer representing that proportion
-  propTank <- floor(length(tanK)*prop.table(vFish)) 
+  propTank <- floor(length(tanK)*prop.table(nFish)) 
   
   # Third we create a list where to store the position by haul 
   positions = as.list(rep(NA, nHaul))
