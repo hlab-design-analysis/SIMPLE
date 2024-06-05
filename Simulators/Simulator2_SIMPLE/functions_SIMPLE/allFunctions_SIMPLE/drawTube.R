@@ -29,7 +29,7 @@ drawTube <- function(
   
   drawTube <- TUBE %>% 
     melt %>%
-    filter(Var3 == 1) %>% 
+    filter(Var3 == 2) %>% 
     select(-Var3) %>% 
     dplyr::rename(
       column = Var2,

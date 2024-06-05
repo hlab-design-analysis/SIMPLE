@@ -24,7 +24,7 @@
 plotProportionMatrix <- function(
   mat, # The matrix from which obtain the proportions
   sizeLabelText = 1
-){
+  ){
   
   p <- ggplot() + 
     geom_bar(data = mat, aes(fill=species, y=proportion_plot, x=station), position="fill", stat="identity") + 
@@ -38,7 +38,7 @@ plotProportionMatrix <- function(
     theme_bw() + 
     theme(
       legend.position = "none", 
-      axis.text.y = element_text(face=ifelse(levels(mat$station) %in% c("tank_all", "tube_all"),"bold","plain"))
+      axis.text.y = element_text(face="bold")
     )
   
 }
