@@ -50,7 +50,7 @@ calculateProportionMatrix <- function(
         nFish <- c(nFish, nFish_temp)
       }
     }
-    
+    # Extract total number of fishes
     nFishes_all <- sum(nFish)
     pFlowPlotDf <- data.frame(
       station = ifelse(typeMatrix == "tank", c("tank_all", "tank_all"), c("tube_all", "tube_all")),
@@ -117,22 +117,22 @@ calculateProportionMatrix <- function(
       
       if(typeSensor == "single"){
         
-        mat[-nrow(mat)*divisionFactor,] <- NA # All except the row selected turns into NA  
+        mat[-nrow(mat)*divisionFactor,,] <- NA # All except the row selected turns into NA  
         
       } else {
         
-        mat[-(interval),] <- NA # All except the interval selected turns into NA  
+        mat[-(interval),,] <- NA # All except the interval selected turns into NA  
       }
       
     }else{
       
       if(typeSensor == "single"){
         
-        mat[,-ncol(mat)*divisionFactor] <- NA # All except the selected columns into NA
+        mat[,-ncol(mat)*divisionFactor,] <- NA # All except the selected columns into NA
         
       } else {
         
-        mat[,-(interval)] <- NA # All except the interval selected turns into NA  
+        mat[,-(interval),] <- NA # All except the interval selected turns into NA  
 
       }
       
@@ -143,7 +143,17 @@ calculateProportionMatrix <- function(
     
     pHerring <- as.numeric(prop.table(table(mat == 1))["TRUE"])
     pSprat <- as.numeric(prop.table(table(mat == 2))["TRUE"])
-    nFishes_all <- sum(N)
+    # Extract the number of fishes in the set of hauls 
+    for(h in 1:nHaul){
+      nFish_temp <- length(haulsList[[h]]$fishes[,,2])
+      if(h == 1){
+        nFish <- nFish_temp
+      }else{
+        nFish <- c(nFish, nFish_temp)
+      }
+    }
+    # Extract total number of fishes
+    nFishes_all <- sum(nFish)
     
     if(typeMatrix == "tube"){ 
       mat <- ifelse(is.na(mat), 0, mat) # Turn again NA to zero
@@ -165,7 +175,6 @@ calculateProportionMatrix <- function(
       ) 
     }
   
-    
   }
   
   if(plot == 1){ # To plot rapidly the matrix and see the selected interval
