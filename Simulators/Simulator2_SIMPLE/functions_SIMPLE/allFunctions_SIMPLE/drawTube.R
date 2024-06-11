@@ -54,7 +54,8 @@ drawTube <- function(
         value = value
       ) %>% 
       mutate(
-        value = as.numeric(value)
+        value = as.numeric(value),
+        value = ifelse(value == 0, NA, value)
       )
     
   } else if(type == "volume"){
@@ -69,7 +70,8 @@ drawTube <- function(
         value = value
       ) %>% 
       mutate(
-        value = as.numeric(value)
+        value = as.numeric(value),
+        value = ifelse(value == 0, NA, value)
       )
     
   }
@@ -92,10 +94,20 @@ drawTube <- function(
       
     if(type == "weight" | type == "volume"){
       
-      plotTube <- ggplot() +
-        geom_raster(data =  drawTube %>% filter(!is.na(value)), aes(column, row, fill = value)) +
-        labs(y = "Tube height (fishes)", x = "Tube length (fishes)", fill = type) + 
-        scale_fill_viridis_c(option = ifelse(type == "weight", "magma", "viridis"))
+      if(all(is.na(drawTube$value))){
+        drawTube <- drawTube %>% mutate(value = ifelse(is.na(value), "0", value))
+        plotTube <- ggplot() +
+          geom_raster(data =  drawTube, aes(column, row, fill = value)) +
+          labs(y = "Tube height (fishes)", x = "Tube length (fishes)", fill = type) +
+          scale_fill_manual(values = c("0" = "black"))
+        
+      } else{
+        plotTube <- ggplot() +
+          geom_raster(data =  drawTube, aes(column, row, fill = value)) +
+          labs(y = "Tube height (fishes)", x = "Tube length (fishes)", fill = type) + 
+          scale_fill_viridis_c(option = ifelse(type == "weight", "magma", "viridis"), na.value = "black")
+      }
+     
       
     }
     
