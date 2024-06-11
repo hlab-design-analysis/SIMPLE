@@ -26,7 +26,8 @@ drawFlow <- function(
   TANK, # A matrix representing a tank, possibly filled
   TUBE, # A matrix representing a tube, 
   pIndicator = c(1,0), 
-  sizeLabelText = 1
+  sizeLabelText = 1, 
+  type = c("species", "weight", "volume")
   ){
   
   ## First organize the proportion panel 
