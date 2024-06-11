@@ -31,7 +31,7 @@ buildTube <- function(
   flowtube <- array(0, list(heightTube,lengthTube,5))
   
   if(plot == 1){
-    suppressMessages(print(drawTube(flowtube, plot = 1, legend = 1)))   
+    suppressMessages(print(drawTube(flowtube, plot = 1, legend = 1, type = "species")))   
   }
   
   flowtube
