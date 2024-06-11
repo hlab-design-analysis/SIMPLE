@@ -64,12 +64,12 @@ calculateProportionMatrix <- function(
     pHerring <- ifelse(
       1 %in% unique(pDf$species), # If herring exists in the catch  
       pDf[pDf$species == 1, ]$wProp, 
-      0)
+      NA)
     
     pSprat <- ifelse(
       2 %in% unique(pDf$species), # If sprat exists in the catch  
       pDf[pDf$species == 2, ]$wProp, 
-      0)
+      NA)
     
     # Dataset to use
     pFlowPlotDf <- data.frame(
@@ -186,12 +186,12 @@ calculateProportionMatrix <- function(
     pHerring <- ifelse(
       1 %in% unique(pDf$species), # If herring exists in the catch  
       pDf[pDf$species == 1, ]$wProp, 
-      0)
+      NA)
     
     pSprat <- ifelse(
       2 %in% unique(pDf$species), # If sprat exists in the catch  
       pDf[pDf$species == 2, ]$wProp, 
-      0)
+      NA)
     
     # Dataset to use
     pFlowPlotDf <- data.frame(
@@ -204,12 +204,12 @@ calculateProportionMatrix <- function(
     pHerring <- ifelse(
       1 %in% unique(pDf$species), # If herring exists in the catch  
       pDf[pDf$species == 1, ]$wProp, 
-      0)
+      NA)
     
     pSprat <- ifelse(
       2 %in% unique(pDf$species), # If sprat exists in the catch  
       pDf[pDf$species == 2, ]$wProp, 
-      0)
+      NA)
     
 
     if(typeMatrix == "tube"){ 
@@ -245,3 +245,4 @@ calculateProportionMatrix <- function(
   pFlowPlotDf
   
 }
+
