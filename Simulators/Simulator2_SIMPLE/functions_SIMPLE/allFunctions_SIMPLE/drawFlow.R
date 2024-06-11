@@ -142,7 +142,7 @@ drawFlow <- function(
   p <- cowplot::ggdraw() + #https://stackoverflow.com/questions/68238373/plotting-a-map-with-a-zoomed-mini-map
     suppressMessages(coord_equal(xlim = c(0, 20), ylim = c(0, 20), expand = FALSE)) +
     annotation_custom(ggplotGrob(suppressMessages(drawTank(TANK, plot = 1, type = "species"))), xmin = -2, xmax = 15, ymin = 5, ymax = 20) +
-    annotation_custom(ggplotGrob(suppressMessages(drawTube(TUBE, plot = 1, legend = 0))), xmin = 8, xmax = 30, ymin = -.5, ymax = 4.5) +
+    annotation_custom(ggplotGrob(suppressMessages(drawTube(TUBE, type = type, plot = 1, legend = 0))), xmin = 8, xmax = 30, ymin = -.5, ymax = 4.5) +
     geom_polygon(
       data = data.frame(
         x = c(2,6,10.5), 
