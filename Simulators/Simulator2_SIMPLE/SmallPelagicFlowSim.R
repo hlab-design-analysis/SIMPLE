@@ -722,9 +722,9 @@ while(!all(is.na(tank[,,1]))){
       
     } else {
       
-      if(sum(!is.na(tank[nrow(tank),,])) >= heightTube ){ # If more than 10 elements are present in the last row of the tank, we extract 10 randomly
+      if(sum(!is.na(tank[nrow(tank),,1])) >= heightTube ){ # If more than 10 elements are present in the last row of the tank, we extract 10 randomly
         
-        cat("Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,])), "\n")
+        cat("Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,1])), "\n")
         
         positionExitRow <- sample(which(!is.na(tank[nrow(tank),,1])), heightTube) # Here we sample in the last row the position of the fishes that will exit
         flowtube[,2:lengthTube,] <- flowtube[,1:lengthTube-1,] # Here we shift plus one to the right the tube matrix to simulate flow
@@ -787,7 +787,7 @@ while(!all(is.na(tank[,,1]))){
         }
           
         
-      } else if (sum(!is.na(tank[nrow(tank),,])) < heightTube & sum(!is.na(tank[nrow(tank),,])) >=1) { # If more less than 10 elements are present in the last row of the tank, we extract what is there
+      } else if (sum(!is.na(tank[nrow(tank),,1])) < heightTube & sum(!is.na(tank[nrow(tank),,1])) >=1) { # If more less than 10 elements are present in the last row of the tank, we extract what is there
         
         cat("Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,])), "\n")
         
@@ -858,8 +858,9 @@ while(!all(is.na(tank[,,1]))){
         cat("Tank matrix row", tankRow, "completed. Proceeding with tank matrix row", tankRow + 1, "\n")
         
         tankRow <- tankRow - 1 # We speicify the row of the Tank we are sampling
-        tank <- rbind(rep(NA, ncol(tank)), tank[-tankHeight,,])  # Here we shift plus one to the right the tube matrix to simulate flow
-       
+ 
+        tank <- abind(list(array(c(rep("NA", ncol(tank))), c(1,ncol(tank),5)), tank[-tankHeight,,]), along = 1,  force.array=TRUE)
+        
         if(plotFlow == 1 & t %/% plotFlowEach %in% seq(plotFlowEach, timeSteps, plotFlowEach)){ # This plot every plotFlowEach iteration as specified
           print(suppressMessages(drawFlow(tank, flowtube, pIndicator = 1, sizeLabelText = .1))) # Try and plot results
         }
