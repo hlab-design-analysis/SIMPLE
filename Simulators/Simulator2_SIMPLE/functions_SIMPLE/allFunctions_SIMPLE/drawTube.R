@@ -93,9 +93,9 @@ drawTube <- function(
     if(type == "weight" | type == "volume"){
       
       plotTube <- ggplot() +
-        geom_contour_filled(data =  drawTube %>% filter(!is.na(value)), aes(column, row, z = value), bins = 5) +
+        geom_raster(data =  drawTube %>% filter(!is.na(value)), aes(column, row, fill = value)) +
         labs(y = "Tube height (fishes)", x = "Tube length (fishes)", fill = type) + 
-        scale_fill_viridis_d(option = ifelse(type == "weight", "magma", "viridis"))
+        scale_fill_viridis_c(option = ifelse(type == "weight", "magma", "viridis"))
       
     }
     
