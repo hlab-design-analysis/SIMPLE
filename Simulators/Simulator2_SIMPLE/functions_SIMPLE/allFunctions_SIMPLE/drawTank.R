@@ -66,12 +66,13 @@ drawTank <- function(
       drawTank <- drawTank %>% 
         dplyr::filter(Var3 == 4) %>% 
         mutate(
-          value = as.numeric(value)
+          value = as.numeric(value), 
+          value = ifelse(value == 0, NA, value)
         ) 
       drawTankPlot <- ggplot(data = drawTank, aes(Var2, Var1, fill = value)) +
-        geom_raster(data =  drawTank %>% dplyr::filter(!is.na(value)), aes(Var1, Var2, fill = value)) +
+        geom_raster(data =  drawTank, aes(Var2, Var1, fill = value)) +
         guides(fill = guide_legend(title = "Volume")) +
-        scale_fill_viridis_c(option = "viridis")
+        scale_fill_viridis_c(option = "viridis", na.value = "black")
       
     } else if(type == "hauls"){
       drawTank <- drawTank %>%
