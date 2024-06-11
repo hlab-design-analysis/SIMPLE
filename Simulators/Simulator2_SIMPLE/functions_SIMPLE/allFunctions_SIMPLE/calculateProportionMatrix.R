@@ -37,21 +37,41 @@ calculateProportionMatrix <- function(
       # Turn zero to NA
       mat <- ifelse(mat == 0, NA, mat)
     }
+
+    # Generate proportion dataset
+    pDf <- as.data.frame(
+        cbind(
+          melt(mat[,,2], value.name = "species")[3],
+          melt(mat[,,3], value.name = "weight")[3]  
+        )  
+      ) %>%
+      filter(!is.na(species) & species != "NA") %>% 
+      mutate(weight = as.numeric(weight)) %>% 
+      mutate(
+        wTot = sum(weight)
+      ) %>%  
+      group_by(species) %>% 
+      mutate(
+        wSpe = sum(weight)
+      ) %>% 
+      select(-weight) %>% 
+      distinct %>% 
+      rowwise() %>% 
+      summarize(
+        wProp = wSpe/wTot
+      )
+  
+    pHerring <- ifelse(
+      1 %in% unique(pDf$species), # If herring exists in the catch  
+      pDf[pDf$species == 1, ]$wProp, 
+      0)
     
-    pHerring <- as.numeric(prop.table(table(mat == 1))["TRUE"])
-    pSprat <- as.numeric(prop.table(table(mat == 2))["TRUE"])
+    pSprat <- ifelse(
+      2 %in% unique(pDf$species), # If sprat exists in the catch  
+      pDf[pDf$species == 2, ]$wProp, 
+      0)
     
-    # Extract the number of fishes in the set of hauls 
-    for(h in 1:nHaul){
-      nFish_temp <- length(haulsList[[h]]$fishes[,,2])
-      if(h == 1){
-        nFish <- nFish_temp
-      }else{
-        nFish <- c(nFish, nFish_temp)
-      }
-    }
-    # Extract total number of fishes
-    nFishes_all <- sum(nFish)
+    # Dataset to use
     pFlowPlotDf <- data.frame(
       station = ifelse(typeMatrix == "tank", c("tank_all", "tank_all"), c("tube_all", "tube_all")),
       species = c("herring", "sprat"),
@@ -138,22 +158,60 @@ calculateProportionMatrix <- function(
       # Turn zero to NA
       mat <- ifelse(mat == 0, NA, mat)
       
-      }
-    
-    pHerring <- as.numeric(prop.table(table(mat == 1))["TRUE"])
-    pSprat <- as.numeric(prop.table(table(mat == 2))["TRUE"])
-    # Extract the number of fishes in the set of hauls 
-    for(h in 1:nHaul){
-      nFish_temp <- length(haulsList[[h]]$fishes[,,2])
-      if(h == 1){
-        nFish <- nFish_temp
-      }else{
-        nFish <- c(nFish, nFish_temp)
-      }
     }
-    # Extract total number of fishes
-    nFishes_all <- sum(nFish)
     
+    # Generate proportion dataset
+    pDf <- as.data.frame(
+      cbind(
+        melt(mat[,,2], value.name = "species")[3],
+        melt(mat[,,3], value.name = "weight")[3]  
+      )  
+    ) %>%
+      filter(!is.na(species) & species != "NA") %>% 
+      mutate(weight = as.numeric(weight)) %>% 
+      mutate(
+        wTot = sum(weight)
+      ) %>%  
+      group_by(species) %>% 
+      mutate(
+        wSpe = sum(weight)
+      ) %>% 
+      select(-weight) %>% 
+      distinct %>% 
+      rowwise() %>% 
+      summarize(
+        wProp = wSpe/wTot
+      )
+    
+    pHerring <- ifelse(
+      1 %in% unique(pDf$species), # If herring exists in the catch  
+      pDf[pDf$species == 1, ]$wProp, 
+      0)
+    
+    pSprat <- ifelse(
+      2 %in% unique(pDf$species), # If sprat exists in the catch  
+      pDf[pDf$species == 2, ]$wProp, 
+      0)
+    
+    # Dataset to use
+    pFlowPlotDf <- data.frame(
+      station = ifelse(typeMatrix == "tank", c("tank_all", "tank_all"), c("tube_all", "tube_all")),
+      species = c("herring", "sprat"),
+      proportion = c(pHerring, pSprat)
+    )
+    
+
+    pHerring <- ifelse(
+      1 %in% unique(pDf$species), # If herring exists in the catch  
+      pDf[pDf$species == 1, ]$wProp, 
+      0)
+    
+    pSprat <- ifelse(
+      2 %in% unique(pDf$species), # If sprat exists in the catch  
+      pDf[pDf$species == 2, ]$wProp, 
+      0)
+    
+
     if(typeMatrix == "tube"){ 
       mat <- ifelse(is.na(mat), 0, mat) # Turn again NA to zero
     }
@@ -186,7 +244,5 @@ calculateProportionMatrix <- function(
   
   pFlowPlotDf
   
-  
 }
-
 
