@@ -1085,7 +1085,7 @@ while(!all(is.na(tank[,,1]))){
         
         tankRow <- tankRow - 1 # We speicify the row of the Tank we are sampling
  
-        tank <- abind(list(array(c(rep("NA", ncol(tank))), c(1,ncol(tank),5)), tank[-tankHeight,,]), along = 1,  force.array=TRUE)
+        tank <- abind(list(array(c(rep(NA, ncol(tank))), c(1,ncol(tank),5)), tank[-tankHeight,,]), along = 1,  force.array=TRUE)
         
         if(plotFlow == 1 & t %/% plotFlowEach %in% seq(plotFlowEach, timeSteps, plotFlowEach)){ # This plot every plotFlowEach iteration as specified
           print(suppressMessages(drawFlow(tank, flowtube, type = "species", pIndicator = 1, sizeLabelText = .1))) # Try and plot results
@@ -1120,7 +1120,7 @@ save(ltb, file = "~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/
 # ii. Produce the video with 
 #
 #      (if 50gap frame is solved) ffmpeg -framerate 25 -i image-%08d.png   -c:v libx264 -pix_fmt yuv420p out.mp4  # Credit: https://stackoverflow.com/questions/24961127/how-to-create-a-video-from-images-with-ffmpeg
-#      (if 50gap frame is not solved and i. was done) ffmpeg -framerate 25 -i image-%d.png   -c:v libx264 -pix_fmt yuv420p out.mp4  # Credit: https://stackoverflow.com/questions/24961127/how-to-create-a-video-from-images-with-ffmpeg
+#      (if 50gap frame is not solved and i. was done) ffmpeg -framerate 25 -i %d.png   -c:v libx264 -pix_fmt yuv420p out.mp4  # Credit: https://stackoverflow.com/questions/24961127/how-to-create-a-video-from-images-with-ffmpeg
 # 
 #      Adjust framerate on needs 
 #
