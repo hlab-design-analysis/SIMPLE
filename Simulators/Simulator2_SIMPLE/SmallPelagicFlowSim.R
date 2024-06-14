@@ -85,11 +85,13 @@ load ("~/Public_Eros/SIMPLE/Simulators/Simulator1_SIMPLE/001_Inputs_SimRealHaul/
 # Catch properties
 nHaul = 3 # Number of hauls
 p_herring = c(0.1, 0.2, 0.3) # Proportion of herring. If nHaul > 1, use vector with one value per each
-W = c(50, 20, 60) # Catch of both species If nHaul > 1, use vector with one value per each
+W = c(60000, 10000, 30000) # Catch of both species If nHaul > 1, use vector with one value per each [c(60000, 10000, 30000) 95.00% 21]
+
+# [c(60000, 10000, 30000) 95.00% 21]
 
 # Tank properties
-tankHeight = 800
-tankLength = 500
+tankHeight = 5000
+tankLength = 1000
 bigTank = 0
 
 # Tube properties
