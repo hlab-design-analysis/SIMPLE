@@ -450,7 +450,7 @@ for(h in 1:length(haulsList)){
   
   # Turn in numbers the species
   haulsList[[h]]$fishes[,,2] <- ifelse(haulsList[[h]]$fishes[,,2] == "herring", 1, 2)
-  
+   
 }
 
 ## P3: Try to extract n samples
