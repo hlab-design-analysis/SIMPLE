@@ -85,9 +85,11 @@ load ("~/Public_Eros/SIMPLE/Simulators/Simulator1_SIMPLE/001_Inputs_SimRealHaul/
 # Catch properties
 nHaul = 3 # Number of hauls
 p_herring = c(0.1, 0.2, 0.3) # Proportion of herring. If nHaul > 1, use vector with one value per each
-W = c(60000, 10000, 30000) # Catch of both species If nHaul > 1, use vector with one value per each [c(60000, 10000, 30000) 95.00% 21]
+W = c(10000, 3000, 5000) # Catch of both species If nHaul > 1, use vector with one value per each 
 
 # [c(60000, 10000, 30000) 95.00% 21]
+# [c(10000, 3000, 5000) m21]
+
 
 # Tank properties
 tankHeight = 5000
@@ -246,55 +248,119 @@ wf_her <- prop.table(table(df_her$indWt)); names(wf_her) <- as.integer(names(wf_
 wf_spr <- prop.table(table(df_spr$indWt)); names(wf_spr) <- as.integer(names(wf_spr))/1000; round(wf_spr*100,1); barplot(wf_spr)
 
 ## P4: Extract fishes from the weight distribution until the weight of the haul is reached
+# First, tune the search. The following parameter is the number of fishes added to find the number of fishes needed to fill the haul catch for a given species. 
+tuneSearch <- 100 #  The higher the faster, but the less precise match with the haul catch.
+
 # For herring
-for(h in 1:length(haulsList)){
+species = "herring"
+for(h in 1:nHaul){
+  cat("Searching the number of", species, " needed to fill the catch in", h, "\n")
+  idealNumber <- floor((haulsList[[h]]$catch_w*haulsList[[h]]$p_her)/(max(df_her$indWt, na.rm = T)/1000)) # Start from the number of fishes given the max weight 
+  sumFish <- 0
   
-  extractedFishWeigthList = c()
-  weightSingleHerrings = 0
+  while(
+    sumFish <= (haulsList[[h]]$catch_w*haulsList[[h]]$p_her)
+  ){
+    cat(silver("trying with", idealNumber, ":"))
+    
+    possibleNbyW <- reshape2::melt(
+      floor(
+        idealNumber*wf_her
+      ),
+      value.name = "Individuals"
+    ) %>% 
+      rename(
+        weightClass = 1
+      )
+    
+    possibleNbyWList <- split(possibleNbyW, possibleNbyW$weightClass)
+    
+    for(wClass in 1:length(possibleNbyWList)){
+      possibleNbyWList[[wClass]] <- rep(possibleNbyWList[[wClass]]$weightClass, possibleNbyWList[[wClass]]$Individuals)
+    }
+    
+    sumFish <- sum(list_c(possibleNbyWList))
+    
+    if(sumFish <= (haulsList[[h]]$catch_w*haulsList[[h]]$p_her)){
+      
+      # The number of sprat fishes to fill the catch of the haul was not found
+      cat(silver("not enough,", (haulsList[[h]]$catch_w*haulsList[[h]]$p_her)-sumFish," kg missing to fill the catch of", species, "in Haul", h, "\n"))
+      
+      # Hence, increase by the number of fishes specified in the tuneSearch
+      idealNumber <- idealNumber + tuneSearch
+      
+    } else {
+      
+      # The number of sprat fishes to fill the catch of the haul was found
+      cat(green("\n", "Completed -"), "It takes", idealNumber, species, "fishes to fill the", (haulsList[[h]]$catch_w*haulsList[[h]]$p_her), "kg catch of", species, "in Haul", h, "[imprecision:", abs((haulsList[[h]]$catch_w*haulsList[[h]]$p_her)-sumFish),"kg ]", "\n")
+      
+    }
+  }
   
-  while(weightSingleHerrings<(haulsList[[h]]$catch_w*haulsList[[h]]$p_herring)){
-    # Extract a fish according to weight distribution 
-    extractedFishWeigth <- as.numeric(sample(names(wf_her), size=1, prob=wf_her))
-    
-    # Print
-    cat(paste0("I extracted an herring weighting: ", extractedFishWeigth, ". Hence, ", (haulsList[[h]]$catch_w*haulsList[[h]]$p_herring) - weightSingleHerrings, " kg remain to be sampled."), "\n")
-    
-    # Append the extracted fish 
-    extractedFishWeigthList <- c(extractedFishWeigthList, extractedFishWeigth)
-    
-    # Update the weight of the sample
-    weightSingleHerrings <- sum(weightSingleHerrings, extractedFishWeigth)
-    
-  }  
+  # Collect the fishes extracted in the haul list
+  haulsList[[h]]$catch_wsh <- list_c(possibleNbyWList)
   
-  haulsList[[h]]$catch_wsh <- extractedFishWeigthList # catch weight single herrings
+  # Mix the fishes 
+  haulsList[[h]]$catch_wsh <- sample(haulsList[[h]]$catch_wsh)
   
 }
 
 # For sprat
-for(h in 1:length(haulsList)){
-
-  extractedFishWeigthList = c()
-  weightSingleSprat = 0
+species = "sprat"
+for(h in 1:nHaul){
+  cat("Searching the number of", species, " needed to fill the catch in", h, "\n")
+  idealNumber <- floor((haulsList[[h]]$catch_w*haulsList[[h]]$p_sprat)/(max(df_spr$indWt, na.rm = T)/1000)) # Start from the number of fishes given the max weight 
+  sumFish <- 0
   
-  while(weightSingleSprat<(haulsList[[h]]$catch_w*haulsList[[h]]$p_spr)){
-    # Extract a fish according to weight distribution 
-    extractedFishWeigth <- as.numeric(sample(names(wf_spr), size=1, prob=wf_spr))
+  while(
+    sumFish <= (haulsList[[h]]$catch_w*haulsList[[h]]$p_sprat)
+  ){
+    cat(silver("trying with", idealNumber, ":"))
     
-    # Print
-    cat(paste0("I extracted a sprat weighting: ", extractedFishWeigth, ". Hence, ", (haulsList[[h]]$catch_w*haulsList[[h]]$p_spr) - weightSingleSprat, " kg remain to be sampled."), "\n")
+    possibleNbyW <- reshape2::melt(
+      floor(
+        idealNumber*wf_spr
+      ),
+      value.name = "Individuals"
+    ) %>% 
+      rename(
+        weightClass = 1
+      )
     
-    # Append the extracted fish 
-    extractedFishWeigthList <- c(extractedFishWeigthList, extractedFishWeigth)
+    possibleNbyWList <- split(possibleNbyW, possibleNbyW$weightClass)
     
-    # Update the weight of the sample
-    weightSingleSprat <- sum(weightSingleSprat, extractedFishWeigth)
+    for(wClass in 1:length(possibleNbyWList)){
+      possibleNbyWList[[wClass]] <- rep(possibleNbyWList[[wClass]]$weightClass, possibleNbyWList[[wClass]]$Individuals)
+    }
     
-  }  
+    sumFish <- sum(list_c(possibleNbyWList))
+    
+    if(sumFish <= (haulsList[[h]]$catch_w*haulsList[[h]]$p_sprat)){
+      
+      # The number of sprat fishes to fill the catch of the haul was not found
+      cat(silver("not enough,", haulsList[[h]]$catch_w-sumFish," kg missing to fill the catch of", species, "in Haul", h, "\n"))
+      
+      # Hence, increase by the number of fishes specified in the tuneSearch
+      idealNumber <- idealNumber + tuneSearch
+          
+    } else {
+      
+      # The number of sprat fishes to fill the catch of the haul was found
+      cat(green("\n", "Completed -"), "It takes", idealNumber, species, "fishes to fill the", (haulsList[[h]]$catch_w*haulsList[[h]]$p_sprat), "kg catch of", species, "in Haul", h, "[imprecision:", abs((haulsList[[h]]$catch_w*haulsList[[h]]$p_spr)-sumFish),"kg ]", "\n")
+      
+    }
+  }
   
-  haulsList[[h]]$catch_wss <- extractedFishWeigthList # catch weight single spr
+  # Collect the fishes extracted in the haul list
+  haulsList[[h]]$catch_wss <- list_c(possibleNbyWList)
+  
+  # Mix the fishes 
+  haulsList[[h]]$catch_wss <- sample(haulsList[[h]]$catch_wss)
   
 }
+
+## P5: Extract the total number of fishes caught in the NHauls
+NFishes <- sum(sapply(haulsList, function(x) sum(length(x[[4]]), length(x[[5]]))))
 
 ## P5: Check results
 # Extract the weights sampled for each haul
