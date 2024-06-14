@@ -36,8 +36,8 @@ setwd("~/Public_Eros/SIMPLE/Simulators/Simulator2_SIMPLE")
 ## P2: Indicate directory to store intermediate results (should be a place able to allocate large files e.g. 70gb)
 supportResultsDir <- "~/mnt/CNAS/SIMPLE_Auxiliary"
 
-## P3: Indicate directory to store results
-ResultsDir <- "Results"
+## P3: Indicate directory to store large results
+ResultsDir <- "results"
 
 ## P4: Load the additional settings
 source("settings_SIMPLE/settings_SIMPLE.R")
@@ -76,6 +76,24 @@ load ("~/Public_Eros/SIMPLE/Simulators/Simulator1_SIMPLE/001_Inputs_SimRealHaul/
 
 ########################################################################################
 #
+# Create simulation files -----
+# Here we create a folder to store the results of the simulation
+#
+########################################################################################
+
+## P0: Give a name to your simulation
+simName = 4
+
+## Create a folder to store results 
+# Light results are stored in the repository indicated in the header
+# Check its existence and create if none
+if(!dir.exists(paste0("results_SIMPLE/Simulation", simName))){
+  dir.create(paste0("results_SIMPLE/Simulation", simName))
+}
+
+
+########################################################################################
+#
 # Set parameters -----
 # Here we set the initial condition for the simulation
 #
@@ -84,21 +102,20 @@ load ("~/Public_Eros/SIMPLE/Simulators/Simulator1_SIMPLE/001_Inputs_SimRealHaul/
 ## P1: Choose parameters values 
 # Catch properties
 nHaul = 3 # Number of hauls
-p_herring = c(0.1, 0.2, 0.3) # Proportion of herring. If nHaul > 1, use vector with one value per each
+p_herring = c(0.85, 0.50, 0.25) # Proportion of herring. If nHaul > 1, use vector with one value per each
 W = c(10000, 3000, 5000) # Catch of both species If nHaul > 1, use vector with one value per each 
 
 # [c(60000, 10000, 30000) 95.00% 21]
 # [c(10000, 3000, 5000) m21]
 
-
 # Tank properties
-tankHeight = 5000
+tankHeight = 2000
 tankLength = 1000
 bigTank = 0
 
 # Tube properties
-heightTube = 10 
-lengthTube = 100
+heightTube = 100 
+lengthTube = 3000
 
 ## P2: Alternatively pick one of the following and load the parameters from script script simulationLog.R
 #
@@ -166,7 +183,7 @@ df_spr<-df_spr[df_spr$sampId=="2009_2105",]
 
 ## P2: Plot coupled distribution (weight and length)
 df_all <- rbind(df_her %>% mutate(species = "her"), df_spr %>% mutate(species = "spr"))
-p <- ggExtra::ggMarginal(
+LWR_plot <- ggExtra::ggMarginal(
   ggplot(df_all) + 
     geom_point(aes(x = indWt, y = lenCls, color = species), alpha = .5) + 
     scale_color_manual(
@@ -175,8 +192,13 @@ p <- ggExtra::ggMarginal(
     ) + 
     theme_bw() + 
     theme(
-      legend.position = "bottom"
-    ), 
+      axis.text = element_text(size = 8),
+      axis.title = element_text(size = 9),
+      legend.position = "bottom", 
+      legend.text =  element_text(size = 8),
+      legend.title = element_text(size = 9),
+    ) + 
+  labs(x = "Weight", y = "Length"),
   type = "density", 
   margins = "both",
   size = 8, 
@@ -184,7 +206,19 @@ p <- ggExtra::ggMarginal(
   groupFill = TRUE, 
   yparams = list(n=40, na.rm = T)
 )
-p
+LWR_plot 
+
+## Save plot
+ggsave(
+  filename = paste0("LWRcatch_", "sim", simName,".png"),
+  plot = LWR_plot,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 20,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
 
 ## P3: Give a look to the length and weight relationship 
 mh <- lm(log(lenCls) ~ log(indWt), data = df_her); rh <- summary(mh)$adj.r.squared
@@ -219,7 +253,7 @@ lwrDf <- rbind(
   )
 )
 
-ggplot() + 
+LWRmod_plot <- ggplot() + 
   geom_point(data = df_all, aes(x = indWt, y = lenCls, color = species), alpha = .5) + 
   geom_line(data = lwrDf, aes(x = indWt, y = exp(pred)), color = "black") + 
   scale_color_manual(
@@ -228,6 +262,11 @@ ggplot() +
   ) + 
   theme_bw() +
   theme(
+    axis.text = element_text(size = 8),
+    axis.title = element_text(size = 9),
+    legend.position = "bottom", 
+    legend.text =  element_text(size = 8),
+    legend.title = element_text(size = 9),
     strip.background = element_rect(
       fill = "black"
     ), 
@@ -237,15 +276,82 @@ ggplot() +
   ) + 
   facet_wrap(~species)
 
+# Show plot
+LWRmod_plot
 dev.off()
+
+# Save plot
+ggsave(
+  filename = paste0("LWRmod_", "sim", simName,".png"),
+  plot = LWRmod_plot,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 20,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
 
 ## P2: Determine the length distribution 
 lf_her <- prop.table(table(df_her$lenCls)); round(lf_her*100,1); barplot(lf_her)
 lf_spr <- prop.table(table(df_spr$lenCls)); round(lf_spr*100,1); barplot(lf_spr)
 
 ## P3: Determine the weight distribution 
-wf_her <- prop.table(table(df_her$indWt)); names(wf_her) <- as.integer(names(wf_her))/1000; round(wf_her*100,1); barplot(wf_her)
-wf_spr <- prop.table(table(df_spr$indWt)); names(wf_spr) <- as.integer(names(wf_spr))/1000; round(wf_spr*100,1); barplot(wf_spr)
+wf_her <- prop.table(table(df_her$indWt)); names(wf_her) <- as.integer(names(wf_her))/1000; round(wf_her*100,1)
+wf_spr <- prop.table(table(df_spr$indWt)); names(wf_spr) <- as.integer(names(wf_spr))/1000; round(wf_spr*100,1)
+
+## P4: Plot 
+wf_her_plot <- reshape2::melt(table(df_her$indWt)) %>% 
+  dplyr::select(-Var1) %>% 
+  cbind(weightClass = as.factor(names(wf_her))) %>% 
+  ggplot() + 
+  geom_col(aes(y = value, x = weightClass), fill = "blue", color = "black", alpha = .5) + 
+  labs(x = "Weight class", y = "Frequency") + 
+  theme_bw() +
+  theme(
+    axis.text = element_text(size = 8, angle = 90),
+    axis.title = element_text(size = 9),
+    legend.position = "bottom", 
+    legend.text =  element_text(size = 8),
+    legend.title = element_text(size = 9)
+  )
+
+wf_spr_plot <- reshape2::melt(table(df_spr$indWt)) %>% 
+    dplyr::select(-Var1) %>% 
+    cbind(weightClass = as.factor(names(wf_spr))) %>% 
+    ggplot() + 
+    geom_col(aes(y = value, x = weightClass), fill = "red", color = "black", alpha = .5) + 
+    labs(x = "Weight class", y = "Frequency") + 
+    theme_bw() +
+    theme(
+      axis.text = element_text(size = 8, angle = 90),
+      axis.title = element_text(size = 9),
+      legend.position = "bottom", 
+      legend.text =  element_text(size = 8),
+      legend.title = element_text(size = 9)
+    )
+
+wf_plot <- ggarrange(
+  wf_her_plot,
+  wf_spr_plot, 
+  nrow = 1, 
+  labels = "AUTO"
+)
+
+# Show plot 
+wf_plot
+
+# Save plot
+ggsave(
+  filename = paste0("wf_",  "sim", simName,".png"),
+  plot = wf_plot,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 20,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
 
 ## P4: Extract fishes from the weight distribution until the weight of the haul is reached
 # First, tune the search. The following parameter is the number of fishes added to find the number of fishes needed to fill the haul catch for a given species. 
@@ -386,7 +492,7 @@ checkDf <- do.call(
 )
 
 # Plot
-ggplot(checkDf) + 
+DistExtractedFish_plot <- ggplot(checkDf) + 
     geom_histogram(
       aes(
         x = weights, 
@@ -396,8 +502,11 @@ ggplot(checkDf) +
     labs(x = "Weight", y = "Frequency") + 
     theme_bw() + 
     theme(
+      axis.text = element_text(size = 8, angle = 90),
+      axis.title = element_text(size = 9),
       legend.position = "bottom", 
-      plot.title = element_text(hjust = .5),
+      legend.text =  element_text(size = 8),
+      legend.title = element_text(size = 9), 
       strip.background = element_rect(
         fill = "black"
       ), 
@@ -406,6 +515,17 @@ ggplot(checkDf) +
       )
     ) + 
   facet_wrap(~species, scales = "free")
+
+ggsave(
+  filename = paste0("DistExtractedFish", "sim", simName,".png"),
+  plot = DistExtractedFish_plot,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 20,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
 
 ## P5: Build haul array 
 # The haul array is a 3d matrix which specify species weight, volume for each fish in each haul. 
@@ -496,6 +616,17 @@ tank <- buildTank(
   tankLength = tankLength, # 500
   bigTank = bigTank, 
   plot = 1
+)
+
+ggsave(
+  filename = paste0("emptyTank_", "sim", simName,".png"),
+  plot = drawTank(tank, plot = 1, type = "species"),
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 20,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
 )
 
 ########################################################################################
@@ -642,12 +773,25 @@ drawTank(tank, plot = 1, type = "volume")
 drawTank(tank, plot = 1, type = "hauls")
 
 ## P3: Plot the result of the pouring including the haul tank twin matrix 
-ggarrange(
+dev.off() 
+pouredFishInTank_plot <- ggarrange(
   drawTank(tank, plot = 1, type = "species") + theme(legend.position = "bottom", legend.direction = "horizontal"),
   drawTank(tank, plot = 1, type = "weight") + theme(legend.position = "bottom", legend.direction = "horizontal"), 
   drawTank(tank, plot = 1, type = "volume") + theme(legend.position = "bottom", legend.direction = "horizontal"),
   drawTank(tank, plot = 1, type = "hauls") + theme(legend.position = "bottom", legend.direction = "horizontal"), 
   nrow = 1
+)
+
+## P7: Save the plot 
+ggsave(
+  filename = paste0("allPouredTank_", "sim", simName,".png"),
+  plot = pouredFishInTank_plot,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 40,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
 )
 
 # Check results
@@ -664,6 +808,7 @@ ggarrange(
 ########################################################################################
 
 ## P1: Sink the fishes for the main tank matrix
+# ! This part should be optimized
 for(d in 1:dim(tank)[3]){
   for(j in 1:ncol(tank[,,d])){
     tank[,,d] <- ifelse(tank[,,d] == 0, NA,tank[,,d])
@@ -672,6 +817,9 @@ for(d in 1:dim(tank)[3]){
     tank[,j,d] <- c(rep(NA, tankHeight-nRecFullCol), recFullCol)
   }  
 }
+
+## Save the full tank to save time in case of re-run
+save(tank, file = file.path(paste0(getwd(), "/results_SIMPLE/Simulation",simName,"/tankFull_sim", simName, ".R")))
 
 ## P3: Plot the results for the main tank matrix
 if(bigTank == 1){
@@ -682,12 +830,24 @@ if(bigTank == 1){
 }
 
 ## P4: Plot the results including the haul tank twin matrix
-ggarrange(
+sinkedFishInTank_plot <- ggarrange(
   drawTank(tank, plot = 1, type = "species") + theme(legend.position = "bottom", legend.direction = "horizontal"),
   drawTank(tank, plot = 1, type = "weight") + theme(legend.position = "bottom", legend.direction = "horizontal"), 
   drawTank(tank, plot = 1, type = "volume") + theme(legend.position = "bottom", legend.direction = "horizontal"),
   drawTank(tank, plot = 1, type = "hauls") + theme(legend.position = "bottom", legend.direction = "horizontal"), 
   nrow = 1
+)
+
+## P7: Save the plot 
+ggsave(
+  filename = paste0("allSinkedTank_", "sim", simName,".png"),
+  plot = sinkedFishInTank_plot,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 40,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
 )
 
 ########################################################################################
@@ -703,6 +863,18 @@ flowtube <- buildTube(
   plot = 1
 )
 
+## P7: Save the plot 
+ggsave(
+  filename = paste0("emptyTube_", "sim", simName,".png"),
+  plot = drawTube(flowtube, plot = 1, type = "species", legend = 1),
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 40,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
+
 ########################################################################################
 #
 # Build the connection ----
@@ -710,10 +882,35 @@ flowtube <- buildTube(
 #
 ########################################################################################
 ## P1: Build the connection between tank and tube
-suppressMessages(drawFlow(tank, flowtube, type = "species", pIndicator = 0, sizeLabelText = .1))
+#tank <- ifelse(tank == "0", NA, tank)
+flowWoProp_plot <- suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 0, sizeLabelText = .1))
+
+## P7: Save the plot 
+ggsave(
+  filename = paste0("flowWoProp_", "sim", simName,".png"),
+  plot = flowWoProp_plot,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 40,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
 
 ## P2: Add proportion revealed at different intervals of the connection between tank and tube
-suppressMessages(drawFlow(tank, flowtube, type = "species", pIndicator = 1, sizeLabelText = .1))
+flowWiProp_plot <- suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))
+
+## P7: Save the plot 
+ggsave(
+  filename = paste0("flowWiProp_", "sim", simName,".png"),
+  plot = flowWiProp_plot,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 40,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
 
 ########################################################################################
 #
@@ -736,6 +933,14 @@ toAvoid <- which(1:timeSteps %% (tankLength/heightTube) == 0) + 1
 cf <- coord_fixed() 
 cf$default <- T
 
+# Reload tank and tube if needed
+load("~/Public_Eros/SIMPLE/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/tankFull_sim4.R")
+flowtube <- buildTube(
+  heightTube = heightTube, 
+  lengthTube = lengthTube, 
+  plot = 1
+)
+
 while(!all(is.na(tank[,,1]))){
   
   for(t in 1:timeSteps){
@@ -745,7 +950,7 @@ while(!all(is.na(tank[,,1]))){
       tankRow <- tankHeight # We speicify the row of the Tank we are sampling
       cat("\n", "Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,1])), "\n")
       
-      positionExitRow <- sample(which(!is.na(tank[nrow(tank),,1])), 10) # Here we sample in the last row the position of the fishes that will exit
+      positionExitRow <- sample(which(!is.na(tank[nrow(tank),,1])), heightTube) # Here we sample in the last row the position of the fishes that will exit
       flowtube[c(1:heightTube),1,] <- tank[nrow(tank),positionExitRow,] # These fishes enter the tube, while 
       tank[nrow(tank), positionExitRow,] <- NA # Their position in the tank are turned to NA 
       ltb[[2]] <- flowtube # We save the result in a step of the flowtube time list
@@ -754,9 +959,7 @@ while(!all(is.na(tank[,,1]))){
       #print(flowtube[,1:10]) # We print the results
         
       if((!t %in% toAvoid)){ # The second part is due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
-        plotUpdate_species <- suppressMessages(drawFlow(tank, flowtube, type = "species", pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
-        plotUpdate_weight <- suppressMessages(drawFlow(tank, flowtube, type = "weight", pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
-        plotUpdate_volume <- suppressMessages(drawFlow(tank, flowtube, type = "volume", pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
+        plotUpdate_species <- suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
         }
       
       if(saveFlow == 1 & (!t %in% toAvoid)){ # The second part is due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
@@ -765,7 +968,7 @@ while(!all(is.na(tank[,,1]))){
         ggsave(
           filename = paste0(
             supportResultsDir,
-            "/flowTankTube/pngs/pngs_species/image-", 
+            "/flowTankTube/pngs/image-", 
             ifelse(
               t<=10, 
               "0000000", 
@@ -796,76 +999,6 @@ while(!all(is.na(tank[,,1]))){
           dpi = quality
         )
         
-        # Save weight plot
-        ggsave(
-          filename = paste0(
-            supportResultsDir,
-            "/flowTankTube/pngs/pngs_weight/image-", 
-            ifelse(
-              t<=10, 
-              "0000000", 
-              ifelse(
-                t<=100, 
-                "000000",
-                ifelse(
-                  t<=1000, 
-                  "00000",
-                  ifelse(
-                    t<=10000, 
-                    "0000",
-                    ifelse(
-                      t<=100000, 
-                      "000",
-                      "00"
-                    )
-                  )
-                )
-              )
-            ),
-            t-1,
-            ".png"
-          ),
-          plot = plotUpdate_weight,
-          width = 20, 
-          height = 10,
-          dpi = quality
-        )
-        
-        # Save volume plot
-        ggsave(
-          filename = paste0(
-            supportResultsDir,
-            "/flowTankTube/pngs/pngs_volume/image-", 
-            ifelse(
-              t<=10, 
-              "0000000", 
-              ifelse(
-                t<=100, 
-                "000000",
-                ifelse(
-                  t<=1000, 
-                  "00000",
-                  ifelse(
-                    t<=10000, 
-                    "0000",
-                    ifelse(
-                      t<=100000, 
-                      "000",
-                      "00"
-                    )
-                  )
-                )
-              )
-            ),
-            t-1,
-            ".png"
-          ),
-          plot = plotUpdate_volume,
-          width = 20, 
-          height = 10,
-          dpi = quality
-        )
-        
       }
       
     } else {
@@ -887,9 +1020,9 @@ while(!all(is.na(tank[,,1]))){
         
           
         if((!t %in% toAvoid)){ # The second part is due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
-          plotUpdate_species <- suppressMessages(drawFlow(tank, flowtube, type = "species", pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
-          plotUpdate_weight <- suppressMessages(drawFlow(tank, flowtube, type = "weight", pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
-          plotUpdate_volume <- suppressMessages(drawFlow(tank, flowtube, type = "volume", pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
+         
+           plotUpdate_species <- suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
+
         }
         
         if(saveFlow == 1){ 
@@ -898,7 +1031,7 @@ while(!all(is.na(tank[,,1]))){
           ggsave(
             filename = paste0(
               supportResultsDir,
-              "/flowTankTube/pngs/pngs_species/image-", 
+              "/flowTankTube/pngs/image-", 
               ifelse(
                 t<=10, 
                 "0000000", 
@@ -929,81 +1062,11 @@ while(!all(is.na(tank[,,1]))){
             dpi = quality
           )
           
-          # Save weight plot
-          ggsave(
-            filename = paste0(
-              supportResultsDir,
-              "/flowTankTube/pngs/pngs_weight/image-", 
-              ifelse(
-                t<=10, 
-                "0000000", 
-                ifelse(
-                  t<=100, 
-                  "000000",
-                  ifelse(
-                    t<=1000, 
-                    "00000",
-                    ifelse(
-                      t<=10000, 
-                      "0000",
-                      ifelse(
-                        t<=100000, 
-                        "000",
-                        "00"
-                      )
-                    )
-                  )
-                )
-              ),
-              t-1,
-              ".png"
-            ),
-            plot = plotUpdate_weight,
-            width = 20, 
-            height = 10,
-            dpi = quality
-          )
-          
-          # Save volume plot
-          ggsave(
-            filename = paste0(
-              supportResultsDir,
-              "/flowTankTube/pngs/pngs_volume/image-", 
-              ifelse(
-                t<=10, 
-                "0000000", 
-                ifelse(
-                  t<=100, 
-                  "000000",
-                  ifelse(
-                    t<=1000, 
-                    "00000",
-                    ifelse(
-                      t<=10000, 
-                      "0000",
-                      ifelse(
-                        t<=100000, 
-                        "000",
-                        "00"
-                      )
-                    )
-                  )
-                )
-              ),
-              t-1,
-              ".png"
-            ),
-            plot = plotUpdate_volume,
-            width = 20, 
-            height = 10,
-            dpi = quality
-          )
-        
         }
           
         if(plotFlow == 1 & t %/% plotFlowEach %in% seq(plotFlowEach, timeSteps, plotFlowEach)){ # This plot every plotFlowEach iteration as specified
           
-          print(suppressMessages(drawFlow(tank, flowtube, type = "species", pIndicator = 1, sizeLabelText = .1))) # Try and plot results
+          print(suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))) # Try and plot results
           
         }
           
@@ -1026,9 +1089,7 @@ while(!all(is.na(tank[,,1]))){
        
         
         if((!t %in% toAvoid)){ # Due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
-          plotUpdate_species <- suppressMessages(drawFlow(tank, flowtube, type = "species", pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
-          plotUpdate_weight <- suppressMessages(drawFlow(tank, flowtube, type = "weight", pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
-          plotUpdate_volume <- suppressMessages(drawFlow(tank, flowtube, type = "volume", pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
+          plotUpdate_species <- suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
         }
         
         if(saveFlow == 1){
@@ -1037,7 +1098,7 @@ while(!all(is.na(tank[,,1]))){
           ggsave(
             filename = paste0(
               supportResultsDir,
-              "/flowTankTube/pngs/pngs_species/image-", 
+              "/flowTankTube/pngs/image-", 
               ifelse(
                 t<=10, 
                 "0000000", 
@@ -1068,95 +1129,26 @@ while(!all(is.na(tank[,,1]))){
             dpi = quality
           )
           
-          # Save weight plot
-          ggsave(
-            filename = paste0(
-              supportResultsDir,
-              "/flowTankTube/pngs/pngs_weight/image-", 
-              ifelse(
-                t<=10, 
-                "0000000", 
-                ifelse(
-                  t<=100, 
-                  "000000",
-                  ifelse(
-                    t<=1000, 
-                    "00000",
-                    ifelse(
-                      t<=10000, 
-                      "0000",
-                      ifelse(
-                        t<=100000, 
-                        "000",
-                        "00"
-                      )
-                    )
-                  )
-                )
-              ),
-              t-1,
-              ".png"
-            ),
-            plot = plotUpdate_weight,
-            width = 20, 
-            height = 10,
-            dpi = quality
-          )
-          
-          # Save volume plot
-          ggsave(
-            filename = paste0(
-              supportResultsDir,
-              "/flowTankTube/pngs/pngs_volume/image-", 
-              ifelse(
-                t<=10, 
-                "0000000", 
-                ifelse(
-                  t<=100, 
-                  "000000",
-                  ifelse(
-                    t<=1000, 
-                    "00000",
-                    ifelse(
-                      t<=10000, 
-                      "0000",
-                      ifelse(
-                        t<=100000, 
-                        "000",
-                        "00"
-                      )
-                    )
-                  )
-                )
-              ),
-              t-1,
-              ".png"
-            ),
-            plot = plotUpdate_volume,
-            width = 20, 
-            height = 10,
-            dpi = quality
-          )
           
         }
         
         if(plotFlow == 1 & t %/% plotFlowEach %in% seq(plotFlowEach, timeSteps, plotFlowEach)){ # This plot every plotFlowEach iteration as specified
           
-          print(suppressMessages(drawFlow(tank, flowtube, type = "species", pIndicator = 1, sizeLabelText = .1))) # Try and plot results
+          print(suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))) # Try and plot results
           
         }
         
       } else { # It means that zero element are present in the last row of the tank it means that we need to replace this row with the one above
         
         cat("Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,])), "\n")
-        cat("Tank matrix row", tankRow, "completed. Proceeding with tank matrix row", tankRow + 1, "\n")
+        cat("Tank matrix row", tankRow, "completed. Proceeding with tank matrix row", tankRow - 1, "\n")
         
         tankRow <- tankRow - 1 # We speicify the row of the Tank we are sampling
  
         tank <- abind(list(array(c(rep(NA, ncol(tank))), c(1,ncol(tank),5)), tank[-tankHeight,,]), along = 1,  force.array=TRUE)
         
         if(plotFlow == 1 & t %/% plotFlowEach %in% seq(plotFlowEach, timeSteps, plotFlowEach)){ # This plot every plotFlowEach iteration as specified
-          print(suppressMessages(drawFlow(tank, flowtube, type = "species", pIndicator = 1, sizeLabelText = .1))) # Try and plot results
+          print(suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))) # Try and plot results
         }
         
       }
@@ -1165,7 +1157,7 @@ while(!all(is.na(tank[,,1]))){
     
   }
   
-  cat("\n", "\n", "\n", "Completed", "\n", "\n", "\n")
+  cat("\n", "\n", "\n", green("Completed"), "\n", "\n", "\n")
   
   if(plotFlow == 1){ # This plot every plotFlowEach iteration as specified
     print(suppressMessages(drawFlow(tank, flowtube, type = "species", pIndicator = 1, sizeLabelText = .1))) # Try and plot results
