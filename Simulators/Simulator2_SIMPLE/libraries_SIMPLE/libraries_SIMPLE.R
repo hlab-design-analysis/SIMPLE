@@ -33,6 +33,8 @@ suppressPackageStartupMessages(library(crayon))
 suppressPackageStartupMessages(library(dqrng))
 suppressPackageStartupMessages(library(ggfocus))
 suppressPackageStartupMessages(library(ggpubr))
+suppressPackageStartupMessages(library(parallel))
+suppressPackageStartupMessages(library(abind))
 
 ## P2: Print message
 cat('\n')
