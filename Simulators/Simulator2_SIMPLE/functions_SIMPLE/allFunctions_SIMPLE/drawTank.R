@@ -28,20 +28,17 @@ drawTank <- function(
   type = c("species", "hauls", "weight", "volume")
   ){
   drawTank <- TANK %>% 
-    reshape2::melt() %>% 
-    mutate(
-      value = ifelse(is.na(value), 0, value)
-    ) 
+    reshape2::melt()
   
   if(plot == 1){
     if(type == "species"){
       drawTank <- drawTank %>% 
-        filter(Var3 == 2) %>% 
-        mutate(
-          value = as.factor(value)
-        ) 
+        filter(Var3 == 2) 
       
-      drawTankPlot <- ggplot(data = drawTank, aes(Var2, Var1, fill = value)) +
+      drawTankPlot <- ggplot(data = drawTank  %>% 
+                               mutate(
+                                 value = as.factor(ifelse(is.na(value), 0, value))
+                               ), aes(Var2, Var1, fill = value)) +
         geom_tile() +
         guides(fill = guide_legend(title = "Species")) + 
         scale_fill_manual(
@@ -57,20 +54,19 @@ drawTank <- function(
           value = as.numeric(value)
         ) 
       drawTankPlot <- ggplot(data = drawTank, aes(Var2, Var1, fill = value)) +
-        geom_raster(data =  drawTank %>% dplyr::filter(!is.na(value)), aes(Var2, Var1, fill = value)) +
+        geom_raster(data =  drawTank, aes(Var2, Var1, fill = value)) +
         guides(fill = guide_legend(title = "Weight")) +
-        scale_fill_viridis_c(option = "magma") 
+        scale_fill_viridis_c(option = "magma", na.value = "black") 
       
     } else if(type == "volume"){
-      
+
       drawTank <- drawTank %>% 
-        dplyr::filter(Var3 == 4) %>% 
+        dplyr::filter(Var3 == 4)%>% 
         mutate(
-          value = as.numeric(value), 
-          value = ifelse(value == 0, NA, value)
+          value = as.numeric(value)
         ) 
       drawTankPlot <- ggplot(data = drawTank, aes(Var2, Var1, fill = value)) +
-        geom_raster(data =  drawTank, aes(Var2, Var1, fill = value)) +
+        geom_raster(data =  drawTank, aes(Var2, Var1, fill = value)) + 
         guides(fill = guide_legend(title = "Volume")) +
         scale_fill_viridis_c(option = "viridis", na.value = "black")
       

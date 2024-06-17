@@ -918,6 +918,14 @@ ggsave(
 # Here we flow the fishes between the tank and the tube
 #
 ########################################################################################
+# Reload tank and tube if needed
+load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/tankFull_sim4.R")
+flowtube <- buildTube(
+  heightTube = heightTube, 
+  lengthTube = lengthTube, 
+  plot = 1
+)
+
 ## P1: Set the parameter for the flow
 timeSteps = length(tank)/heightTube
 plotFlow = 0
@@ -933,14 +941,6 @@ toAvoid <- which(1:timeSteps %% (tankLength/heightTube) == 0) + 1
 cf <- coord_fixed() 
 cf$default <- T
 
-# Reload tank and tube if needed
-load("~/Public_Eros/SIMPLE/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/tankFull_sim4.R")
-flowtube <- buildTube(
-  heightTube = heightTube, 
-  lengthTube = lengthTube, 
-  plot = 1
-)
-
 while(!all(is.na(tank[,,1]))){
   
   for(t in 1:timeSteps){
@@ -953,12 +953,11 @@ while(!all(is.na(tank[,,1]))){
       positionExitRow <- sample(which(!is.na(tank[nrow(tank),,1])), heightTube) # Here we sample in the last row the position of the fishes that will exit
       flowtube[c(1:heightTube),1,] <- tank[nrow(tank),positionExitRow,] # These fishes enter the tube, while 
       tank[nrow(tank), positionExitRow,] <- NA # Their position in the tank are turned to NA 
-      ltb[[2]] <- flowtube # We save the result in a step of the flowtube time list
       # ltk[[2]] <- tank  # We save the result in a step of the tank time list - avoided, ends up exhausting the memory
       t <- t + 1 # We specify we moved away from the start
       #print(flowtube[,1:10]) # We print the results
         
-      if((!t %in% toAvoid)){ # The second part is due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
+      if((saveFlow == 1 | plotFlow == 1) & (!t %in% toAvoid)){ # The second part is due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
         plotUpdate_species <- suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
         }
       
@@ -1003,7 +1002,7 @@ while(!all(is.na(tank[,,1]))){
       
     } else {
       
-      if(sum(!is.na(tank[nrow(tank),,1])) >= heightTube ){ # If more than 10 elements are present in the last row of the tank, we extract 10 randomly
+      if(sum(!is.na(tank[nrow(tank),,1])) >= heightTube ){ # If more than n (= heightTube) elements are present in the last row of the tank, we extract 10 randomly
         
         cat("Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,1])), "\n")
         
@@ -1013,13 +1012,11 @@ while(!all(is.na(tank[,,1]))){
         flowtube[c(1:heightTube),1,] <- tank[nrow(tank),positionExitRow,] # We replace the first column with values sampled from the tank last row. 
         tank[nrow(tank), positionExitRow,] <- NA # Their position in the tank are turned to NA 
         
-        ltb[[2+t]] <- flowtube # We save the result in a step of the tube time list
-        # ltk[[2+t]] <- tank  # We save the result in a step of the tank time list  - avoided, ends up exhausting the memory
         t <- t + 1
         #print(flowtube[,1:10]) # We print the results
         
           
-        if((!t %in% toAvoid)){ # The second part is due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
+        if((saveFlow == 1 | plotFlow == 1) & (!t %in% toAvoid)){ # The second part is due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
          
            plotUpdate_species <- suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
 
@@ -1075,20 +1072,19 @@ while(!all(is.na(tank[,,1]))){
         
         cat("Iteration:", t, " - ", "Fishes to sample in tank bottom (matrix row", tankRow, ") :", sum(!is.na(tank[nrow(tank),,])), "\n")
         
-        positionExitRow <- which(!is.na(tank[nrow(tank),,1])) # No need to sample in this case, all fishes left in the bottom matrix row are selected to move in the tube 
+        positionExitRow <- which(!is.na(tank[nrow(tank),,])) # No need to sample in this case, all fishes left in the bottom matrix row are selected to move in the tube 
         flowtube[,2:lengthTube,] <- flowtube[,1:lengthTube-1,] # Here we shift plus one to the right the tube matrix to simulate flow
         flowtube[,1,] <- NA # The first column of the tube matrix is duplicated at this stage on the second column, we fill it empty 
-        flowtube[c(1:heightTube),1,] <- c(tank[nrow(tank),positionExitRow,], rep(NA, heightTube-length(tank[nrow(tank),positionExitRow,1]))) # Here a bit of pulsation is allowed between one row and the other (NA value when fishes in the bottom row are <10) 
+        flowtube[c(1:heightTube),1,] <- rbind(tank[positionExitRow,,], matrix(NA, heightTube-length(positionExitRow), dim(tank)[3])) # Here a bit of pulsation is allowed between one row and the other (NA value when fishes in the bottom row are <10) 
         tank[nrow(tank), positionExitRow,] <- NA # Their position in the tank are turned to NA 
         
-        ltb[[2+t]] <- flowtube # We save the result in a step of the tube time list
-        # ltk[[2+t]] <- tank  # We save the result in a step of the tank time list  - avoided, ends up exhaust the memory
+
         t <- t + 1
         
         #print(flowtube[,1:10]) # We print the results
        
         
-        if((!t %in% toAvoid)){ # Due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
+        if((saveFlow == 1 | plotFlow == 1) & (!t %in% toAvoid)){ # Due to the matrix being NULL when no more fishes are present in a row, which coincides with the time at which the time is a multiplier of tank width x tube height
           plotUpdate_species <- suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1)) # This plot an update of the flow  
         }
         
@@ -1153,6 +1149,10 @@ while(!all(is.na(tank[,,1]))){
         
       }
       
+      if(t %% lengthTube == 0 | t == timeSteps){ # if t is multiplier of length tube
+        ltb <- append(ltb, list(flowtube)) # We save the tube matrix, but only when we have the tube full (every t = lengthTube multiplier)
+      }
+      
     }  
     
   }
@@ -1165,11 +1165,12 @@ while(!all(is.na(tank[,,1]))){
   
 }
 
+
 # Some element in the tube list still resulting NULL - delete them. 
 ltb <- ltb[-which(lapply(ltb, function(x) is.null(x)) %>% unlist)]
 
 ## P2: Save the resulting matrix
-save(ltb, file = "~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/Sim_3_mtx.RData")
+save(ltb, file = "~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/Sim_4_mtx.RData")
 
 ## P3: Produce an animation of the simulation
 # To produce an animation of the results it is important to 
