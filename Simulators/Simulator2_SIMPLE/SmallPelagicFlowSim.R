@@ -1176,7 +1176,7 @@ save(ltb, file = "~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/
 # To produce an animation of the results it is important to 
 # i.  Go to terminal and rename the single frames in subsequent order, since apparently there is still a gap in the naming  every 50 frames we use the command: 
 #    
-#     (once in the directory containing the frames) ls -v | cat -n | while read n f; do mv -n "$f" "$n.ext"; done # Credits: https://stackoverflow.com/questions/3211595/renaming-files-in-a-folder-to-sequential-numbers
+#     (once in the directory containing the frames) ls -v | cat -n | while read n f; do mv -n "$f" "$n.png"; done # Credits: https://stackoverflow.com/questions/3211595/renaming-files-in-a-folder-to-sequential-numbers
 # 
 # ii. Produce the video with 
 #
