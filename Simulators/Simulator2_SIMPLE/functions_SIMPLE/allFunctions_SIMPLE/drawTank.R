@@ -74,6 +74,7 @@ drawTank <- function(
       drawTank <- drawTank %>%
         filter(Var3 == 5) %>% 
         mutate(
+          value = ifelse(is.na(value), "0", value), 
           value = as.factor(value)
         ) 
       drawTankPlot <- ggplot(data = drawTank, aes(Var2, Var1, fill = value)) +
