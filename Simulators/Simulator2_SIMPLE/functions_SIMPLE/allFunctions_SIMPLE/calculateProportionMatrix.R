@@ -37,10 +37,41 @@ calculateProportionMatrix <- function(
       # Turn zero to NA
       mat <- ifelse(mat == 0, NA, mat)
     }
+
+    # Generate proportion dataset
+    pDf <- as.data.frame(
+        cbind(
+          melt(mat[,,2], value.name = "species")[3],
+          melt(mat[,,3], value.name = "weight")[3]  
+        )  
+      ) %>%
+      filter(!is.na(species) & species != "NA") %>% 
+      mutate(weight = as.numeric(weight)) %>% 
+      mutate(
+        wTot = sum(weight)
+      ) %>%  
+      group_by(species) %>% 
+      mutate(
+        wSpe = sum(weight)
+      ) %>% 
+      select(-weight) %>% 
+      distinct %>% 
+      rowwise() %>% 
+      summarize(
+        wProp = wSpe/wTot
+      )
+  
+    pHerring <- ifelse(
+      1 %in% unique(pDf$species), # If herring exists in the catch  
+      pDf[pDf$species == 1, ]$wProp, 
+      NA)
     
-    pHerring <- as.numeric(prop.table(table(mat == 1))["TRUE"])
-    pSprat <- as.numeric(prop.table(table(mat == 2))["TRUE"])
-    nFishes_all <- sum(N)
+    pSprat <- ifelse(
+      2 %in% unique(pDf$species), # If sprat exists in the catch  
+      pDf[pDf$species == 2, ]$wProp, 
+      NA)
+    
+    # Dataset to use
     pFlowPlotDf <- data.frame(
       station = ifelse(typeMatrix == "tank", c("tank_all", "tank_all"), c("tube_all", "tube_all")),
       species = c("herring", "sprat"),
@@ -56,13 +87,12 @@ calculateProportionMatrix <- function(
      
       divisionFactor = case_when( # Remember that we are looking at the matrix upside down in the tank case
         sensor == 1 ~ nrow(mat)^(-1),
-        sensor == 25 ~ 0.75, 
+        sensor == 25 ~ 0.25, 
         sensor == 50 ~ 0.50,
-        sensor == 75 ~ 0.25,
+        sensor == 75 ~ 0.75,
         sensor == 100 ~ 1
       )  
     
-      
     } else {
       if(typeSensor == "single"){
         
@@ -106,34 +136,82 @@ calculateProportionMatrix <- function(
       
       if(typeSensor == "single"){
         
-        mat[-nrow(mat)*divisionFactor,] <- NA # All except the row selected turns into NA  
+        mat[-nrow(mat)*divisionFactor,,] <- NA # All except the row selected turns into NA  
         
       } else {
         
-        mat[-(interval),] <- NA # All except the interval selected turns into NA  
+        mat[-(interval),,] <- NA # All except the interval selected turns into NA  
       }
       
     }else{
       
       if(typeSensor == "single"){
         
-        mat[,-ncol(mat)*divisionFactor] <- NA # All except the selected columns into NA
+        mat[,-ncol(mat)*divisionFactor,] <- NA # All except the selected columns into NA
         
       } else {
         
-        mat[,-(interval)] <- NA # All except the interval selected turns into NA  
+        mat[,-(interval),] <- NA # All except the interval selected turns into NA  
 
       }
       
       # Turn zero to NA
       mat <- ifelse(mat == 0, NA, mat)
       
-      }
+    }
     
-    pHerring <- as.numeric(prop.table(table(mat == 1))["TRUE"])
-    pSprat <- as.numeric(prop.table(table(mat == 2))["TRUE"])
-    nFishes_all <- sum(N)
+    # Generate proportion dataset
+    pDf <- as.data.frame(
+      cbind(
+        melt(mat[,,2], value.name = "species")[3],
+        melt(mat[,,3], value.name = "weight")[3]  
+      )  
+    ) %>%
+      filter(!is.na(species) & species != "NA") %>% 
+      mutate(weight = as.numeric(weight)) %>% 
+      mutate(
+        wTot = sum(weight)
+      ) %>%  
+      group_by(species) %>% 
+      mutate(
+        wSpe = sum(weight)
+      ) %>% 
+      select(-weight) %>% 
+      distinct %>% 
+      rowwise() %>% 
+      summarize(
+        wProp = wSpe/wTot
+      )
     
+    pHerring <- ifelse(
+      1 %in% unique(pDf$species), # If herring exists in the catch  
+      pDf[pDf$species == 1, ]$wProp, 
+      NA)
+    
+    pSprat <- ifelse(
+      2 %in% unique(pDf$species), # If sprat exists in the catch  
+      pDf[pDf$species == 2, ]$wProp, 
+      NA)
+    
+    # Dataset to use
+    pFlowPlotDf <- data.frame(
+      station = ifelse(typeMatrix == "tank", c("tank_all", "tank_all"), c("tube_all", "tube_all")),
+      species = c("herring", "sprat"),
+      proportion = c(pHerring, pSprat)
+    )
+    
+
+    pHerring <- ifelse(
+      1 %in% unique(pDf$species), # If herring exists in the catch  
+      pDf[pDf$species == 1, ]$wProp, 
+      NA)
+    
+    pSprat <- ifelse(
+      2 %in% unique(pDf$species), # If sprat exists in the catch  
+      pDf[pDf$species == 2, ]$wProp, 
+      NA)
+    
+
     if(typeMatrix == "tube"){ 
       mat <- ifelse(is.na(mat), 0, mat) # Turn again NA to zero
     }
@@ -154,7 +232,6 @@ calculateProportionMatrix <- function(
       ) 
     }
   
-    
   }
   
   if(plot == 1){ # To plot rapidly the matrix and see the selected interval
@@ -167,7 +244,5 @@ calculateProportionMatrix <- function(
   
   pFlowPlotDf
   
-  
 }
-
 

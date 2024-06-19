@@ -25,8 +25,10 @@
 drawFlow <- function(
   TANK, # A matrix representing a tank, possibly filled
   TUBE, # A matrix representing a tube, 
+  multipleVars = c(1,0), # Should the plot include weight and volume at side of
   pIndicator = c(1,0), 
-  sizeLabelText = 1
+  sizeLabelText = 1, 
+  type = c("species", "weight", "volume")
   ){
   
   ## First organize the proportion panel 
@@ -139,13 +141,38 @@ drawFlow <- function(
   
   # Second organize the plots 
   p <- cowplot::ggdraw() + #https://stackoverflow.com/questions/68238373/plotting-a-map-with-a-zoomed-mini-map
-    suppressMessages(coord_equal(xlim = c(0, 20), ylim = c(0, 20), expand = FALSE)) +
-    annotation_custom(ggplotGrob(suppressMessages(drawTank(TANK, plot = 1, type = "species"))), xmin = -2, xmax = 15, ymin = 5, ymax = 20) +
-    annotation_custom(ggplotGrob(suppressMessages(drawTube(TUBE, plot = 1, legend = 0))), xmin = 8, xmax = 30, ymin = -.5, ymax = 4.5) +
+    suppressMessages(coord_equal(xlim = c(-10, 30), ylim = c(-10, 12), expand = FALSE)) +
+    annotation_custom(
+      ggplotGrob(
+        suppressMessages(
+          drawTank(TANK, plot = 1, type = type) + 
+            theme(
+              axis.text = element_text(size = 8),
+              axis.title = element_text(size = 9),
+              legend.text =  element_text(size = 8),
+              legend.title = element_text(size = 9),
+              legend.position = "top", 
+              legend.direction = "horizontal", 
+              legend.key.height = unit(.1, "cm"),
+              legend.key.width = unit(.25, "cm") 
+              ))
+        ), 
+      xmin = -30, xmax = 20, ymin = -3, ymax = 12
+      ) +
+    annotation_custom(
+      ggplotGrob(
+        suppressMessages(
+          drawTube(TUBE, type = type, plot = 1, legend = 0)) + 
+          labs(y = "\n", x = "") + 
+          theme(
+            axis.text = element_text(size = 8),
+            axis.title = element_text(size = 9)
+          )
+        ), xmin = 0, xmax = 30, ymin = -10, ymax = -5) +
     geom_polygon(
       data = data.frame(
-        x = c(2,6,10.5), 
-        y = c(6,4,6), 
+        x = c(-7.5,-4.5,-1), 
+        y = c(-3,-3.5,-3), 
         group = c(1,1,1)
       ),
       aes(
@@ -156,8 +183,8 @@ drawFlow <- function(
     ) +
     geom_polygon(
       data = data.frame(
-        x = c(5.5,5.5,6.5,6.5), 
-        y = c(2.5,6,6,2.5), 
+        x = c(-5,-5,-4,-4), 
+        y = c(-3,-7.5,-7.5,-3), 
         group = c(1,1,1,1)
       ),
       aes(
@@ -168,8 +195,8 @@ drawFlow <- function(
     ) +
     geom_polygon(
       data = data.frame(
-        x = c(5.5,5.5,8,8), 
-        y = c(3.5,2, 2,3.5), 
+        x = c(-4,-4,0,0), 
+        y = c(-6.75,-7.5,-7.5,-6.75), 
         group = c(1,1,1,1)
       ),
       aes(
@@ -180,22 +207,81 @@ drawFlow <- function(
     ) +
     theme(
       plot.background = element_rect(fill="white", color = "NA") 
-    ) + 
-    if(pIndicator == 1){
+    ) 
+    if(multipleVars == 1){
+      p <- p +  
       annotation_custom(
+        ggplotGrob(
+          suppressMessages(
+            drawTank(TANK, plot = 1, type = "volume") +
+              theme(
+                axis.text = element_text(size = 8),
+                axis.title = element_text(size = 9),
+                legend.text =  element_text(size = 8),
+                legend.title = element_text(size = 9),
+                legend.position = "top",
+                legend.direction = "horizontal",
+                legend.key.height = unit(.1, "cm"),
+                legend.key.width = unit(.25, "cm")
+              ))
+        ), xmin = 0, xmax = 30, ymin = -3, ymax = 12
+      ) +
+       annotation_custom(
+          ggplotGrob(
+            suppressMessages(
+              drawTank(TANK, plot = 1, type = "weight") + 
+                theme(
+                  axis.text = element_text(size = 8),
+                  axis.title = element_text(size = 9),
+                  legend.text =  element_text(size = 8),
+                  legend.title = element_text(size = 9),
+                  legend.position = "top", 
+                  legend.direction = "horizontal", 
+                  legend.key.height = unit(.1, "cm"),
+                  legend.key.width = unit(.25, "cm") 
+                ))
+          ), xmin = -20, xmax = 30, ymin = -3, ymax = 12
+        ) +
+        annotation_custom(
+          ggplotGrob(
+            suppressMessages(
+              drawTube(TUBE, type = "weight", plot = 1, legend = 0)) + 
+              labs(y = "\n", x = "") + 
+              theme(
+                axis.text.y = element_text(size = 8),
+                axis.text.x = element_blank(),
+                axis.title.y = element_text(size = 9),
+                axis.title.x = element_blank(),
+              )
+          ), xmin = 0, xmax = 30, ymin = -10, ymax = -1) +
+        annotation_custom(
+          ggplotGrob(
+            suppressMessages(
+              drawTube(TUBE, type = "volume", plot = 1, legend = 0)) + 
+              labs(y = "\n", x = "") + 
+              theme(
+                axis.text.y = element_text(size = 8),
+                axis.text.x = element_blank(),
+                axis.title.y = element_text(size = 9),
+                axis.title.x = element_blank(),
+              )
+          ), xmin = 0, xmax = 30, ymin = -10, ymax = 2) 
+    } 
+    if(pIndicator == 1){
+      p <- p +  annotation_custom(
         ggplotGrob(
           suppressMessages(
               plotProportionMatrix(
                 pIndicatorDf,
                 sizeLabelText = sizeLabelText
+                )  + 
+                theme(
+                  axis.text = element_text(size = 8),
+                  axis.title = element_text(size = 9)
                 )
               )
         
-        ),
-        xmin = 15, 
-        xmax = 30, 
-        ymin = 5, 
-        ymax = 20
+        ), xmin = 20, xmax = 30, ymin = -3, ymax = 10
       )
     }
   
