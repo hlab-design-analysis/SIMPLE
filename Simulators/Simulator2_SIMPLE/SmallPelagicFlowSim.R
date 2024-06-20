@@ -932,7 +932,7 @@ load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/tankFull_sim
 timeSteps = length(tank)/heightTube
 plotFlow = 0
 plotFlowEach = 10000
-saveFlow = 1
+saveFlow = 0
 quality = 100
 addition = 0
 ltb <- list(flowtube)
@@ -947,7 +947,7 @@ cf$default <- T
 t = 0
 
 # Start the flow
-while(!(all(is.na(tank[nrow(tank),,])) & all(is.na(flowtube[,,])))){
+while(!all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & all(flowtube[,,]=="0")){
   
   if(t == 0){
     
