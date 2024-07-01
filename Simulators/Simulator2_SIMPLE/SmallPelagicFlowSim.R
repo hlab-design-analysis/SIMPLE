@@ -947,7 +947,7 @@ cf$default <- T
 t = 0
 
 # Start the flow
-while(!all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & all(flowtube[,,]=="0")){
+while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & all(flowtube[,,]=="0") & (!t %% lengthTube == 0))){
   
   if(t == 0){
     
@@ -1047,7 +1047,7 @@ while(!all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) ==
       
     }
     
-    if(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & any(flowtube[,,]!="0")) { # It means that zero element are present in the last row of the tank it means that we need to replace this row with the one above
+    if(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & any(flowtube[,,]!="0") & (!t %% lengthTube == 0)) { # It means that zero element are present in the last row of the tank it means that we need to replace this row with the one above
       
       cat(silver("Last fishes flowing in the tube, emptying tube column", min(which(flowtube[,,] != "0", arr.ind = T)[,2]),"/", lengthTube), "\n")
       flowtube[,2:lengthTube,] <- flowtube[,1:lengthTube-1,] 
@@ -1105,7 +1105,7 @@ while(!all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) ==
     }
     
     
-    if(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & all(flowtube[,,]=="0")){
+    if(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & all(flowtube[,,]=="0") & (!t %% lengthTube == 0)){
       
       cat("\n", "\n", "\n", green("Completed"), "\n", "\n", "\n")
       
@@ -1138,45 +1138,149 @@ save(ltb, file = "~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/
 ##
 
 ################## 
-# Obtain a df from results
+# Obtain the whole flow
 ##################
-## For the tube 
-# Clean results
-ltb <- ltb[lengths(ltb) != 0]
+## Load the flow generated
+# This is the flow every n iteration equal to the tube length (i.e. the tube is captured as element in the ltb list every time is completely full.)
+load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/Sim_4_mtx.RData")
 
-# Reverse matrices
-listFlow <- do.call(rbind, lapply(ltb, t))
+## Connect the flow matrices
+flow <- abind(
+  ltb[[5]], 
+  ltb[[4]], 
+  ltb[[3]], 
+  ltb[[2]], 
+  ltb[[1]],
+  along = 2
+  )
 
-# Obtain a df 
-dFlow <- as.data.frame(listFlow)
+## Plot the result
+# As a static plot in the same style as before
+wholeFlow_static <- flow %>% 
+  melt %>%
+  filter(Var3 == 2) %>% 
+  dplyr::select(-Var3) %>% 
+  dplyr::rename(
+    column = Var2,
+    row = Var1, 
+    value = value
+  ) %>% 
+  mutate(
+    value = as.character(value)
+  ) %>% 
+  ggplot(
+    aes(column, row, fill = value)
+    ) +
+    geom_tile() + 
+    scale_fill_manual(
+      labels = c("1" = "herring", "2" = "sprat", "0" = "empty"), 
+      values = c("1" = "blue", "2" = "red", "0" = "black")
+    ) + 
+  coord_equal() + 
+  theme_bw() + 
+  theme(
+    axis.title = element_text(size = 8), 
+    axis.text = element_text(size = 8), 
+    plot.background = element_rect(fill = "white")
+  )+ theme(
+      legend.position = "none"
+  )
 
-# Include sequence number
-dFlow <- cbind(
-  dFlow, 
-  rowname = rep(1:lengthTube, length(ltb))
+# Save the plot 
+ggsave(
+  filename = paste0("flowTot_", "sim", simName,"_static.png"),
+  plot = wholeFlow_static,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 30,
+  height = 5,
+  units = "cm",
+  dpi = 500,
+  bg = "white", 
+  type = "cairo"
 )
 
-# Include time 
-dFlow <- cbind(
-  dFlow, 
-  time = unlist(lapply(1:(nrow(dFlow)/lengthTube), function(x) rep(x, lengthTube)))
+# As a static plot, full screen
+wholeFlow_static_full <- flow %>% 
+  melt %>%
+  filter(Var3 == 2) %>% 
+  dplyr::select(-Var3) %>% 
+  dplyr::rename(
+    column = Var2,
+    row = Var1, 
+    value = value
+  ) %>% 
+  mutate(
+    value = as.character(value)
+  ) %>% 
+  ggplot(
+    aes(column, row, fill = value)
+  ) +
+  geom_tile() + 
+  scale_fill_manual(
+    labels = c("1" = "herring", "2" = "sprat", "0" = "empty"), 
+    values = c("1" = "blue", "2" = "red", "0" = "black")
+  ) + 
+  theme_bw() + 
+  theme(
+    axis.title = element_text(size = 8), 
+    axis.text = element_text(size = 8), 
+    plot.background = element_rect(fill = "white")
+  )+ theme(
+    legend.position = "none"
+  )
+
+# Save the plot 
+ggsave(
+  filename = paste0("flowTot_", "sim", simName,"_full_static.png"),
+  plot = wholeFlow_static_full,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 30,
+  height = 5,
+  units = "cm",
+  dpi = 500,
+  bg = "white", 
+  type = "cairo"
 )
 
-# Now turn it into a long df
-dFlow <- pivot_longer(dFlow, cols = !c("rowname", "time")) 
 
-# Rename the columns
-dFlow <- dFlow %>% dplyr::rename(
-  colM  = rowname, # The column called rowname is what in the original matrix was a column
-  rowM  = name,    # The column called name    is what in the original matrix was a row
-  time  = time,
-  species = value  # The column named value    is what in the original matrix was the combination of row and column, i.e. the species
-) 
+# As a dynamic (navigable plot)
+palSpecies = data.frame(z=c(0,0.33,0.33,0.66,0.66,1),color=c("black","black","blue","blue","red","red"))
+palSpecies$color <- as.character(palSpecies$color)
 
-# Clean the output
-dFlow <- dFlow %>% 
-  dplyr::mutate(
-    rowM = gsub("V", "", rowM), # Remove the V in rowM, 
-    rowM = as.numeric(rowM), 
-    colM = as.numeric(colM)
-) 
+idD <- flow[,,1] %>% melt(value.name = "ID")
+spD <- flow[,,2] %>% melt(value.name = "SP")
+weD <- flow[,,3] %>% melt(value.name = "WE")
+voD <- flow[,,4] %>% melt(value.name = "VO")
+ifD <- cbind(idD, spD[3], weD[3], voD[3])
+
+wholeFlow_dynamic <-plot_ly(
+  data = ifD, 
+  z = ifD$SP, 
+  y = ifD$Var1, 
+  x = ifD$Var2, 
+  text = paste(
+    paste0("Identifier:", ifD$ID),
+    paste0("Species:", ifelse(ifD$SP==0, "Empty", ifelse(ifD$SP==1, "HER", "SPR"))),
+    paste0("Weight:", ifD$WE),
+    paste0("Volume:", round(as.numeric(ifD$VO),4)),
+    sep = "<br>"
+    ), 
+  type = "heatmap",  
+  colorscale=palSpecies,
+  colorbar=list(
+    ypad = 30, 
+    tickvals=c(0,1,2), 
+    ticktext=c(0,1,2), 
+    width = 5000, 
+    height = 100
+    ),
+    hovertemplate = paste(
+      "<b>%{text}</b>", "<extra></extra>", sep = "<br>"
+      )
+    ) 
+
+## Save the output
+htmlwidgets::saveWidget(as_widget(wholeFlow_dynamic), selfcontained = F, paste0("results_SIMPLE/Simulation4/flowTot_", "sim", simName,"_full_dynamic.html"))
+
+## Run into terminal to compress 
+#tar -czvf ~/Public_Eros/SIMPLE/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowTot_sim4_full_dynamic.tar.gz ~/Public_Eros/SIMPLE/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowTot_sim4_full_dynamic.html
