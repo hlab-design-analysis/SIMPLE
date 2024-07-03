@@ -921,13 +921,13 @@ ggsave(
 ########################################################################################
 # Reload tank and tube if needed
 load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/tankFull_sim4.R")
-#flowtube <- buildTube(
-#  heightTube = heightTube, 
-#  lengthTube = lengthTube, 
-#  plot = 1
-#)
-
-
+flowtube <- buildTube(
+  heightTube = heightTube,
+  lengthTube = lengthTube,
+  plot = 1
+)
+# suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))
+#tank[1:1998,,] <- NA
 ## P1: Set the parameter for the flow
 timeSteps = length(tank)/heightTube
 plotFlow = 0
@@ -1047,7 +1047,7 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
       
     }
     
-    if(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & any(flowtube[,,]!="0") & (!t %% lengthTube == 0)) { # It means that zero element are present in the last row of the tank it means that we need to replace this row with the one above
+    if(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & any(flowtube[,,]!="0")) { # It means that zero element are present in the last row of the tank it means that we need to replace this row with the one above
       
       cat(silver("Last fishes flowing in the tube, emptying tube column", min(which(flowtube[,,] != "0", arr.ind = T)[,2]),"/", lengthTube), "\n")
       flowtube[,2:lengthTube,] <- flowtube[,1:lengthTube-1,] 
@@ -1112,7 +1112,7 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
     }
     
   }  
-  
+
 }
 
 # Some element in the tube list still resulting NULL - delete them. 
