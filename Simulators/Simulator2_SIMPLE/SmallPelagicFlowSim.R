@@ -935,7 +935,7 @@ ggsave(
 # )
 # tank[1:1900,,] <- NA
 # suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))
-#tank[1:1998,,] <- NA
+# tank[1:1998,,] <- NA
 ## P1: Set the parameter for the flow
 timeSteps = length(tank)/heightTube
 plotFlow = 0
@@ -1126,10 +1126,22 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
 # Some element in the tube list still resulting NULL - delete them. 
 #ltb <- ltb[-which(lapply(ltb, function(x) is.null(x)) %>% unlist)]
 
-## P2: Save the resulting matrix
+## P2: Save/load the resulting matrix
+# The following line save the flow generated in the loop above, one element for an entire tube flown
 save(ltb, file = paste0(supportResultsDir, "flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
 
-## P3: Produce an animation of the simulation
+# The following line load the flow generated in the loop above, one element for an entire tube flown
+#load(paste0(supportResultsDir, "flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
+
+
+########################################################################################
+#
+# Visualize the flow results ----
+# Here we save some elements visualizing the flow created at the prior step. 
+#
+########################################################################################
+
+## P1: Produce an animation of the simulation
 # To produce an animation of the results it is important to 
 # i.  Go to terminal and rename the single frames in subsequent order, since apparently there is still a gap in the naming  every 50 frames we use the command: 
 #    
@@ -1145,11 +1157,8 @@ save(ltb, file = paste0(supportResultsDir, "flowTankTube/matrixes/Simulation", s
 # iii. Export video
 ##
 
-## Load the flow generated
-# This is the flow every n iteration equal to the tube length (i.e. the tube is captured as element in the ltb list every time is completely full.)
-load(paste0(supportResultsDir, "flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
-
-## Connect the flow matrices
+## P2: Produce a representation of all the flow flown into the tube 
+# First connect the matrices in the stored version of the flow 
 flow <- abind(
   ltb[[5]], 
   ltb[[4]], 
@@ -1159,7 +1168,7 @@ flow <- abind(
   along = 2
 )
 
-## Plot the result
+# Then plot the result
 # As a static plot in the same style as before
 wholeFlow_static <- flow %>% 
   melt %>%
@@ -1289,6 +1298,3 @@ htmlwidgets::saveWidget(as_widget(wholeFlow_dynamic), selfcontained = F, paste0(
 
 ## Run into terminal to compress 
 #tar -czvf ~/Public_Eros/SIMPLE/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowTot_sim4_full_dynamic.tar.gz ~/Public_Eros/SIMPLE/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowTot_sim4_full_dynamic.html
-
-
-
