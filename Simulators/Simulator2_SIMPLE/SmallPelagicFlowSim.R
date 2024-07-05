@@ -1127,7 +1127,7 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
 #ltb <- ltb[-which(lapply(ltb, function(x) is.null(x)) %>% unlist)]
 
 ## P2: Save the resulting matrix
-save(ltb, file = "~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/Sim_4_mtx.RData")
+save(ltb, file = paste0(supportResultsDir, "flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
 
 ## P3: Produce an animation of the simulation
 # To produce an animation of the results it is important to 
@@ -1147,7 +1147,7 @@ save(ltb, file = "~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/
 
 ## Load the flow generated
 # This is the flow every n iteration equal to the tube length (i.e. the tube is captured as element in the ltb list every time is completely full.)
-load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/Sim_4_mtx.RData")
+load(paste0(supportResultsDir, "flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
 
 ## Connect the flow matrices
 flow <- abind(
