@@ -1,6 +1,6 @@
 ########################################################################################
 #
-# SIMPLE - SIM2
+# SmallPelagicFlowSim
 # 
 ########################################################################################
 #
@@ -20,8 +20,8 @@
 # 2024-03-03: Created. Developed tank, fish pourer/sinker, tube and flow between them
 # 2024-03-13: Add proportions at different steps in tank and tube on the plot  
 # 2024-03-15: Add the possibility of including more than one haul and proportion sensors. 
-# 
-# 
+# 2024-05-**: Various fixes to bugs and optimizations. 
+# 2024-06-**: Various fixes to bugs and optimizations. 
 #
 ########################################################################################
 #
@@ -101,16 +101,16 @@ if(!dir.exists(paste0("results_SIMPLE/Simulation", simName))){
 
 ## P1: Choose parameters values 
 # Catch properties
-nHaul = 3 # Number of hauls
-p_herring = c(0.85, 0.50, 0.25) # Proportion of herring. If nHaul > 1, use vector with one value per each
-W = c(10000, 3000, 5000) # Catch of both species If nHaul > 1, use vector with one value per each 
+nHaul = 1 # Number of hauls
+p_herring = c(0.66) # Proportion of herring. If nHaul > 1, use vector with one value per each
+W = c(50000) # Catch of both species If nHaul > 1, use vector with one value per each 
 
 # [c(60000, 10000, 30000) 95.00% 21]
 # [c(10000, 3000, 5000) m21]
 
 # Tank properties
-tankHeight = 2000
-tankLength = 1000
+tankHeight = 3500
+tankLength = 1500
 bigTank = 0
 
 # Tube properties
@@ -355,7 +355,7 @@ ggsave(
 
 ## P4: Extract fishes from the weight distribution until the weight of the haul is reached
 # First, tune the search. The following parameter is the number of fishes added to find the number of fishes needed to fill the haul catch for a given species. 
-tuneSearch <- 100 #  The higher the faster, but the less precise match with the haul catch.
+tuneSearch <- 10000 #  The higher the faster, but the less precise match with the haul catch (e.g. 10000 -> ~50kg and ~35kg imprecision on herring and sprat respectively).
 
 # For herring
 species = "herring"
@@ -467,6 +467,13 @@ for(h in 1:nHaul){
 
 ## P5: Extract the total number of fishes caught in the NHauls
 NFishes <- sum(sapply(haulsList, function(x) sum(length(x[[4]]), length(x[[5]]))))
+
+## Check that n fishes stay into the tank
+if(NFishes - (tankHeight*tankLength)>0){
+  stop("enlarge the tank, fishes caught won´t fit!")
+} else {
+    "Tank is large enough to store the fishes caught"
+}
 
 ## P5: Check results
 # Extract the weights sampled for each haul
@@ -615,7 +622,7 @@ tank <- buildTank(
   tankHeight = tankHeight, # 700
   tankLength = tankLength, # 500
   bigTank = bigTank, 
-  plot = 1
+  plot = 0
 )
 
 ggsave(
@@ -819,8 +826,8 @@ for(d in 1:dim(tank)[3]){
   }
 
 ## Save the full tank to save time in case of re-run
-save(tank, file = file.path(paste0(getwd(), "/results_SIMPLE/Simulation",simName,"/tankFull_sim", simName, ".R")))
-save(haulsList, file = file.path(paste0(getwd(), "/results_SIMPLE/Simulation",simName,"/haulList_sim", simName, ".R")))
+save(tank, file = file.path(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation",simName,"/tankFull_sim", simName, ".R")))
+save(haulsList, file = file.path(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation",simName,"/haulList_sim", simName, ".R")))
 
 ## P3: Plot the results for the main tank matrix
 if(bigTank == 1){
@@ -920,12 +927,13 @@ ggsave(
 #
 ########################################################################################
 # Reload tank and tube if needed
-load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/tankFull_sim4.R")
-flowtube <- buildTube(
-  heightTube = heightTube,
-  lengthTube = lengthTube,
-  plot = 1
-)
+# load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/tankFull_sim4.R")
+# flowtube <- buildTube(
+#   heightTube = heightTube,
+#   lengthTube = lengthTube,
+#   plot = 1
+# )
+# tank[1:1900,,] <- NA
 # suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))
 #tank[1:1998,,] <- NA
 ## P1: Set the parameter for the flow
@@ -1116,7 +1124,7 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
 }
 
 # Some element in the tube list still resulting NULL - delete them. 
-ltb <- ltb[-which(lapply(ltb, function(x) is.null(x)) %>% unlist)]
+#ltb <- ltb[-which(lapply(ltb, function(x) is.null(x)) %>% unlist)]
 
 ## P2: Save the resulting matrix
 save(ltb, file = "~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/Sim_4_mtx.RData")
@@ -1137,9 +1145,6 @@ save(ltb, file = "~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/
 # iii. Export video
 ##
 
-################## 
-# Obtain the whole flow
-##################
 ## Load the flow generated
 # This is the flow every n iteration equal to the tube length (i.e. the tube is captured as element in the ltb list every time is completely full.)
 load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation3/Sim_4_mtx.RData")
@@ -1152,7 +1157,7 @@ flow <- abind(
   ltb[[2]], 
   ltb[[1]],
   along = 2
-  )
+)
 
 ## Plot the result
 # As a static plot in the same style as before
@@ -1170,12 +1175,12 @@ wholeFlow_static <- flow %>%
   ) %>% 
   ggplot(
     aes(column, row, fill = value)
-    ) +
-    geom_tile() + 
-    scale_fill_manual(
-      labels = c("1" = "herring", "2" = "sprat", "0" = "empty"), 
-      values = c("1" = "blue", "2" = "red", "0" = "black")
-    ) + 
+  ) +
+  geom_tile() + 
+  scale_fill_manual(
+    labels = c("1" = "herring", "2" = "sprat", "0" = "empty"), 
+    values = c("1" = "blue", "2" = "red", "0" = "black")
+  ) + 
   coord_equal() + 
   theme_bw() + 
   theme(
@@ -1183,7 +1188,7 @@ wholeFlow_static <- flow %>%
     axis.text = element_text(size = 8), 
     plot.background = element_rect(fill = "white")
   )+ theme(
-      legend.position = "none"
+    legend.position = "none"
   )
 
 # Save the plot 
@@ -1264,7 +1269,7 @@ wholeFlow_dynamic <-plot_ly(
     paste0("Weight:", ifD$WE),
     paste0("Volume:", round(as.numeric(ifD$VO),4)),
     sep = "<br>"
-    ), 
+  ), 
   type = "heatmap",  
   colorscale=palSpecies,
   colorbar=list(
@@ -1273,14 +1278,17 @@ wholeFlow_dynamic <-plot_ly(
     ticktext=c(0,1,2), 
     width = 5000, 
     height = 100
-    ),
-    hovertemplate = paste(
-      "<b>%{text}</b>", "<extra></extra>", sep = "<br>"
-      )
-    ) 
+  ),
+  hovertemplate = paste(
+    "<b>%{text}</b>", "<extra></extra>", sep = "<br>"
+  )
+) 
 
 ## Save the output
 htmlwidgets::saveWidget(as_widget(wholeFlow_dynamic), selfcontained = F, paste0("results_SIMPLE/Simulation4/flowTot_", "sim", simName,"_full_dynamic.html"))
 
 ## Run into terminal to compress 
 #tar -czvf ~/Public_Eros/SIMPLE/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowTot_sim4_full_dynamic.tar.gz ~/Public_Eros/SIMPLE/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowTot_sim4_full_dynamic.html
+
+
+
