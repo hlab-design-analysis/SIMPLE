@@ -999,10 +999,10 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
 
 ## P2: Save/load the resulting matrix
 # The following line save the flow generated in the loop above, one element for an entire tube flown
-save(ltb, file = paste0(supportResultsDir, "flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
+#save(ltb, file = paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
 
 # The following line load the flow generated in the loop above, one element for an entire tube flown
-#load(paste0(supportResultsDir, "flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
+load(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
 
 
 ########################################################################################
@@ -1031,6 +1031,15 @@ save(ltb, file = paste0(supportResultsDir, "flowTankTube/matrixes/Simulation", s
 ## P2: Produce a representation of all the flow flown into the tube 
 # First connect the matrices in the stored version of the flow 
 flow <- abind(
+  ltb[[14]], 
+  ltb[[13]], 
+  ltb[[12]], 
+  ltb[[11]], 
+  ltb[[10]],
+  ltb[[9]], 
+  ltb[[8]], 
+  ltb[[7]], 
+  ltb[[6]], 
   ltb[[5]], 
   ltb[[4]], 
   ltb[[3]], 
