@@ -26,15 +26,24 @@
 
 ## Load the flow generated
 # This is the flow every n iteration equal to the tube length (i.e. the tube is captured as element in the ltb list every time is completely full.)
-load(paste0(supportResultsDir, "flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
+load(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
 
 ## Connect the flow matrices
 flow <- abind(
-  ltb[[5]], 
+  ltb[[14]], 
+  ltb[[13]], 
+  ltb[[12]], 
+  ltb[[11]], 
+  ltb[[10]],
+  ltb[[9]], 
+  ltb[[8]], 
+  ltb[[7]], 
+  ltb[[6]], 
+  ltb[[5]],
   ltb[[4]], 
   ltb[[3]], 
   ltb[[2]], 
-  ltb[[1]],
+  ltb[[1]], 
   along = 2
 )
 
@@ -57,8 +66,7 @@ flow <- array(c(
 
 ## Develop the ton list
 wTot = sum(flow[,,3])
-#tonSeq <- seq(0, wTot/1000, 3)
-tonSeq <- seq(0, wTot, 1)  # To be deleted, just trial 
+tonSeq <- seq(0, wTot/1000, 1)
 
 for(i in 1:(length(tonSeq))){
   tmp = data.frame(min = tonSeq[i], max = tonSeq[i+1], tonLabel = i)
@@ -86,16 +94,83 @@ for(i in 1:(length(litSeq))){
 }
 
 
-
 ## For development purposes we recreate it only with the positive values (avoiding zeros/emptyness)
 # To be deleted for the real simulation 
-flow <- flow[,1980:2980,]
+#flow <- flow[,1980:2980,]
 
 ## Prepare loop parameters
 wCount <- 0 
 lCount <- 0 
 tLabel <- 1
 cellCount = 0
+
+
+f <- array(c(
+  flow
+),
+c(nrow(flow),ncol(flow),7)
+)  %>% 
+  as.vector
+f
+
+f[100000 + (length(flow[,,1])*4)]
+
+for(i in length(flow[,,1]):1){
+  cellCount <- cellCount + 1
+  cat(silver(paste0("Completed: ", round((cellCount/length(flow[,,1]))*100, 4), "%. On cell: ", cellCount, " of ", length(flow[,,1]), "\n")))
+  
+  if(flow[i,j,1] != 0){
+    cat(silver(paste0("The cell hosts ", round(f[i], 4), " kilograms and ", round(f[i + (length(flow[,,1])*4)],4)," liters .", "\n")))
+    wCount <- sum(f[i + (length(flow[,,1])*3)]) + wCount
+    lCount <- sum(f[i + (length(flow[,,1])*4)]) + lCount
+    
+    for(intW in 1:nrow(tonIntervals)){
+      #searchInterval <- between(wCount/1000, tonIntervals[intW,1], tonIntervals[intW,2])
+      searchInterval <- between(wCount, tonIntervals[intW,1], tonIntervals[intW,2]) # To be deleted, just trial 
+      if(searchInterval){
+        tLabel <- tonIntervals[intW,"tonLabel"]
+      }
+    }
+    
+    for(intV in 1:nrow(litIntervals)){
+      searchInterval <- between(lCount, litIntervals[intV,1], litIntervals[intV,2])
+      if(searchInterval){
+        litLabel <- litIntervals[intV,"litLabel"]
+      }
+    }
+    
+    # fill the matrix
+    if(i = 1){
+      tonVect <- tLabel
+      litVect <- litLabel
+    }else{
+      tonVect <- append(tonVect, tLabel)
+      litVect <- append(litVect, litLabel)
+    }
+
+    
+    # Inform on completion
+    cat(silver(paste0("The weight count is: ", round(wCount, 4), " kilograms", "\n")))
+    cat(silver(paste0("The volume count is: ", round(lCount, 4), " liters", "\n")))
+    cat(silver(paste0("The ton    count is: ", tLabel, "\n")))
+    cat(silver(paste0("The bucket count is: ", litLabel, "\n \n")))
+    
+    
+  } else{
+    
+    cat(silver(paste0("The cell is empty, thus skipped \n")))
+    
+  }
+  
+  
+  }
+
+
+
+
+append("2", c(2,3))
+
+
 
 ## Assign flow ton to each element
 for(j in dim(flow)[2]:1){
@@ -152,6 +227,10 @@ for(j in dim(flow)[2]:1){
   
 }
 
+## Save the sampling
+save(flow, file = paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_flowSoFar_iequal_",i,"_jequal_",j,".RData"))
+
+table(flow[,,6])
 
 ## Visualize the results
 p <- flow %>% 
@@ -167,8 +246,8 @@ p <- flow %>%
     value = as.character(value)
   ) %>% 
   ggplot(aes(column, row, fill = value), color = "black") +
-  geom_tile() + 
-  theme(legend.position = "none")
+  geom_tile() #+ 
+  #theme(legend.position = "none")
 
 ggsave(
   filename = paste0("flowSegmentedInTons.png"),
