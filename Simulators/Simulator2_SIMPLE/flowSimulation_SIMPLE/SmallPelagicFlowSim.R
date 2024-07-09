@@ -1048,6 +1048,10 @@ flow <- abind(
   along = 2
 )
 
+## Delete duplicates, if any
+ver <- which(duplicated(flow[,,1], MARGIN = c(1,2)) & flow[,,1]!=0, arr.ind = T)
+flow <- flow[,-ver[, 2],]
+
 # Then plot the result
 # As a static plot in the same style as before
 wholeFlow_static <- flow %>% 
