@@ -985,7 +985,7 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
     
     
     if(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & all(flowtube[,,]=="0") & (!t %% lengthTube == 0)){
-      
+      ltb <- append(ltb, list(flowtube))
       cat("\n", "\n", "\n", green("Completed"), "\n", "\n", "\n")
       
     }
