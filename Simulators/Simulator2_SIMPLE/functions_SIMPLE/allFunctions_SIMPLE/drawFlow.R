@@ -146,10 +146,10 @@ drawFlow <- function(
       ggplotGrob(
         suppressMessages(
           drawTank(TANK, plot = 1, type = type) + 
-            coord_fixed(ratio = 1/3) + 
+            coord_fixed(ratio = 50/1) + 
             theme(
-              axis.text = element_text(size = 8),
-              axis.title = element_text(size = 9),
+              axis.text = element_text(size = 6),
+              axis.title = element_text(size = 7),
               legend.text =  element_text(size = 8),
               legend.title = element_text(size = 9),
               legend.position = "top", 
@@ -170,7 +170,7 @@ drawFlow <- function(
             theme(
               axis.text.y = element_text(size = 6),
               axis.text.x = element_text(size = 6),
-              axis.title = element_text(size = 9)
+              axis.title = element_text(size = 7)
             ))
       ), xmin = 0, xmax = 30, ymin = -10, ymax = -5) +
     geom_polygon(
@@ -218,10 +218,10 @@ drawFlow <- function(
         ggplotGrob(
           suppressMessages(
             drawTank(TANK, plot = 1, type = "volume") +
-              coord_fixed(ratio = 1/3) + 
+              coord_fixed(ratio = 50/1) + 
               theme(
-                axis.text = element_text(size = 8),
-                axis.title = element_text(size = 9),
+                axis.text = element_text(size = 6),
+                axis.title = element_text(size = 7),
                 legend.text =  element_text(size = 8),
                 legend.title = element_text(size = 9),
                 legend.position = "top",
@@ -235,10 +235,10 @@ drawFlow <- function(
         ggplotGrob(
           suppressMessages(
             drawTank(TANK, plot = 1, type = "weight") + 
-              coord_fixed(ratio = 1/3) + 
+              coord_fixed(ratio = 50/1) + 
               theme(
-                axis.text = element_text(size = 8),
-                axis.title = element_text(size = 9),
+                axis.text = element_text(size = 6),
+                axis.title = element_text(size = 7),
                 legend.text =  element_text(size = 8),
                 legend.title = element_text(size = 9),
                 legend.position = "top", 
@@ -286,8 +286,8 @@ drawFlow <- function(
             sizeLabelText = sizeLabelText
           )  + 
             theme(
-              axis.text = element_text(size = 8),
-              axis.title = element_text(size = 9)
+              axis.text = element_text(size = 6),
+              axis.title = element_text(size = 7)
             )
         )
         
