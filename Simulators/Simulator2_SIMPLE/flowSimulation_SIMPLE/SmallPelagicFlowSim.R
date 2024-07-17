@@ -808,16 +808,16 @@ ggsave(
 # suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))
 # tank[1:1998,,] <- NA
 ## P1: Set the parameter for the flow
-timeSteps = length(tank)/heightTube
+timeSteps = length(tank[,,1])/heightTube
 plotFlow = 0
-plotFlowEach = 10000
+plotFlowEach = 100
 saveFlow = 0
 quality = 100
 addition = 0
 ltb <- list(flowtube)
 
 # The following lines avoid to produce an empty frame when saving the plot, this happens for time being multiplier of tank width x tube height, as there are no more fishes in the last tank row
-toAvoid <- which(1:timeSteps %% (tankLength/heightTube) == 0) + 1
+toAvoid <- which(1:timeSteps %% (tankWidth/heightTube) == 0) + 1
 # Avoid the coord fixed message, credits: https://github.com/tidyverse/ggplot2/issues/2799
 cf <- coord_fixed() 
 cf$default <- T
@@ -847,8 +847,6 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
     flowtube[c(1:heightTube),1,] <- extracted
     tank[nrow(tank), extractedInd,] <- NA 
     
-    # Increase the timestep
-    t <- t + 1
     
   } else {
     
@@ -874,8 +872,6 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
       flowtube[c(1:heightTube),1,] <- extracted
       tank[nrow(tank), extractedInd,] <- NA 
       
-      # Increase the timestep
-      t <- t + 1
       #print(flowtube[,1:10]) # We print the results
       
       
@@ -901,9 +897,6 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
       flowtube[c(1:heightTube),1,] <- rbind(extracted, matrix("0", heightTube-length(noNAs), dim(tank)[3]))
       tank[nrow(tank), extractedInd,] <- NA 
       
-      # Increase the timestep
-      t <- t + 1
-      
       
       if(plotFlow == 1 & t %/% plotFlowEach %in% seq(plotFlowEach, timeSteps, plotFlowEach)){ # This plot every plotFlowEach iteration as specified
         
@@ -915,30 +908,47 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
     
     if (!all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0) { # It means that there are fishes in the tank but zero element are present in the last row of the tank, we need to replace this row with the one above
       
+      if(
+        
+        (t+1) %% lengthTube == 0 & t != 0 # If the reminder between the iteration and the length of the tube is zero (this happens in t == 0 and t == lengthTube) and t is different from zero. 
+        
+      ){ # if t is multiplier of length tube
+        
+        cat(red("I am saving a copy at t", t, "\n"))
+        ltb <- append(ltb, list(flowtube)) # We save the tube matrix, but only when we have the tube full (every t = lengthTube multiplier)
+        
+      }
+      
+      print(
+        t-lengthTube)
       cat(silver("Tank matrix row", tankRow, "completed. Proceeding with tank matrix row", tankRow - 1), "\n")
       
       tankRow <- tankRow - 1 # We speicify the row of the Tank we are sampling
       
       tank <- abind(list(array(c(rep(NA, ncol(tank))), c(1,ncol(tank),5)), tank[-tankHeight,,]), along = 1,  force.array=TRUE)
       
-      # Increase the timestep
-      t <- t + 1
       
     }
     
     if(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & any(flowtube[,,]!="0")) { # It means that zero element are present in the last row of the tank it means that we need to replace this row with the one above
       
+      if(
+        
+        (t+1) %% lengthTube == 0 & t != 0 # If the reminder between the iteration and the length of the tube is zero (this happens in t == 0 and t == lengthTube) and t is different from zero. 
+        
+      ){ # if t is multiplier of length tube
+        
+        cat(red("I am saving a copy at t", t, "\n"))
+        ltb <- append(ltb, list(flowtube)) # We save the tube matrix, but only when we have the tube full (every t = lengthTube multiplier)
+        
+      }
+      
       cat(silver("Last fishes flowing in the tube, emptying tube column", min(which(flowtube[,,] != "0", arr.ind = T)[,2]),"/", lengthTube), "\n")
       flowtube[,2:lengthTube,] <- flowtube[,1:lengthTube-1,] 
       flowtube[,1,] <- rep("0", heightTube)
       
-      # Increase the timestep
-      t <- t + 1
     }
     
-    if(t %% lengthTube == 0 | t == timeSteps){ # if t is multiplier of length tube
-      ltb <- append(ltb, list(flowtube)) # We save the tube matrix, but only when we have the tube full (every t = lengthTube multiplier)
-    }
     
     if(plotFlow == 1 & t %/% plotFlowEach %in% seq(plotFlowEach, timeSteps, plotFlowEach)){ # This plot every plotFlowEach iteration as specified
       print(suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))) # Try and plot results
@@ -985,12 +995,30 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
     
     
     if(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) == 0 & all(flowtube[,,]=="0") & (!t %% lengthTube == 0)){
-      ltb <- append(ltb, list(flowtube))
+      
+      cat(red("I am saving a copy at t", t, "\n"))
+      ltb <- append(ltb, list(flowtube)) # We save the tube matrix, but only when we have the tube full (every t = lengthTube multiplier)
       cat("\n", "\n", "\n", green("Completed"), "\n", "\n", "\n")
       
     }
     
   }  
+  
+  # Increase the timestep
+  t <- t + 1
+  
+  ## Follow evolution of the flow if needed 
+  # ggsave(
+  #   filename = paste0("flowTot_", "sim", simName,"_static_",t,".png"),
+  #   plot = drawTube(flowtube, plot = 1, type = "species", legend = 1) + coord_equal(ratio = 1/10) + ggtitle(t),
+  #   path = paste0("results_SIMPLE/Simulation", simName, "/exame"),
+  #   width = 30,
+  #   height = 5,
+  #   units = "cm",
+  #   dpi = 500,
+  #   bg = "white",
+  #   type = "cairo"
+  # )
 
 }
 
