@@ -146,7 +146,7 @@ drawFlow <- function(
       ggplotGrob(
         suppressMessages(
           drawTank(TANK, plot = 1, type = type) + 
-            coord_fixed(ratio = 50/1) + 
+            coord_fixed(ratio = 1) + 
             theme(
               axis.text = element_text(size = 6),
               axis.title = element_text(size = 7),
@@ -218,7 +218,7 @@ drawFlow <- function(
         ggplotGrob(
           suppressMessages(
             drawTank(TANK, plot = 1, type = "volume") +
-              coord_fixed(ratio = 50/1) + 
+              coord_fixed(ratio = 1) + 
               theme(
                 axis.text = element_text(size = 6),
                 axis.title = element_text(size = 7),
@@ -235,7 +235,7 @@ drawFlow <- function(
         ggplotGrob(
           suppressMessages(
             drawTank(TANK, plot = 1, type = "weight") + 
-              coord_fixed(ratio = 50/1) + 
+              coord_fixed(ratio = 1) + 
               theme(
                 axis.text = element_text(size = 6),
                 axis.title = element_text(size = 7),
