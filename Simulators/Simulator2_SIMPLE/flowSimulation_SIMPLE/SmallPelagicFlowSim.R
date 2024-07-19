@@ -804,7 +804,8 @@ ggsave(
 #   lengthTube = lengthTube,
 #   plot = 1
 # )
-# tank[1:1900,,] <- NA
+#tank[1:1900,,] <- NA
+#tanKK <- tank
 # suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))
 # tank[1:1998,,] <- NA
 ## P1: Set the parameter for the flow
@@ -817,7 +818,7 @@ addition = 0
 ltb <- list(flowtube)
 
 # The following lines avoid to produce an empty frame when saving the plot, this happens for time being multiplier of tank width x tube height, as there are no more fishes in the last tank row
-toAvoid <- which(1:timeSteps %% (tankWidth/heightTube) == 0) + 1
+toAvoid <- which(1:timeSteps %% (tankLength/heightTube) == 0) + 1
 # Avoid the coord fixed message, credits: https://github.com/tidyverse/ggplot2/issues/2799
 cf <- coord_fixed() 
 cf$default <- T
