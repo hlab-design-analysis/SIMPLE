@@ -83,11 +83,11 @@ W = c(50000) # Catch of both species If nHaul > 1, use vector with one value per
 
 # Tank properties
 tankHeight = 3500
-tankLength = 1500
+tankLength = 2000
 bigTank = 0
 
 # Tube properties
-heightTube = 100 
+heightTube = 1000 
 lengthTube = 3000
 
 ## P2: Alternatively pick one of the following and load the parameters from script script simulationLog.R
