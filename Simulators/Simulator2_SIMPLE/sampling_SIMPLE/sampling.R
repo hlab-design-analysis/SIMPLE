@@ -25,7 +25,7 @@
 ########################################################################################
 
 ## Clean env
-rm(list=setdiff(ls(), "supportResultsDir"))
+rm(list=setdiff(ls(), c("supportResultsDir", "simName"))); gc()
 
 ## Load the flow generated
 # This is the flow every n iteration equal to the tube length (i.e. the tube is captured as element in the ltb list every time is completely full.)
@@ -57,9 +57,19 @@ flow <- array(c(
 ), c(nrow(flow),ncol(flow),7) # Two additional dimensions, one for ton interval and the other for bucket belonged
 )
 
-## Delete duplicates, if any
-ver <- which(duplicated(flow[,,1], MARGIN = c(1,2)) & flow[,,1]!=0, arr.ind = T)
-flow <- flow[,-ver[, 2],]
+
+## Drop the empty regions (save time in the following steps)
+# Here we extract where the emptyness ends and begin in the flow. 
+colIndFull <- which(flow[,,1] == 0, arr.ind = T)[,2] %>% unique() %>% sort() %>% data.frame() %>% rename(colInd = 1) %>%  mutate(gap = abs(lag(colInd) - colInd)) %>% filter(gap > 1) %>% dplyr::select(colInd) %>% pull() %>% range
+colIndFullMin <- min(colIndFull)
+colIndFullMax <- max(colIndFull)
+
+# Now filter 
+if(sum(as.numeric(flow[,(colIndFullMin-100):colIndFullMax,3]), na.rm = T) == sum(as.numeric(flow[,,3]))){ # The -100 is a buffer to make sure no fish is lost
+  flow <- flow[,(colIndFullMin-100):colIndFullMax,]
+} else{
+  stop("Check empty part removal")
+}
 
 ## Develop the ton list
 wTot = sum(flow[,,3])
@@ -100,75 +110,6 @@ wCount <- 0
 lCount <- 0 
 tLabel <- 1
 cellCount = 0
-
-
-
-# f <- array(c(
-#   flow
-# ),
-# c(nrow(flow),ncol(flow),7)
-# )  %>% 
-#   as.vector
-# f
-# 
-# f[100000 + (length(flow[,,1])*4)]
-# 
-# for(i in length(flow[,,1]):1){
-#   cellCount <- cellCount + 1
-#   cat(silver(paste0("Completed: ", round((cellCount/length(flow[,,1]))*100, 4), "%. On cell: ", cellCount, " of ", length(flow[,,1]), "\n")))
-#   
-#   if(flow[i,j,1] != 0){
-#     cat(silver(paste0("The cell hosts ", round(f[i], 4), " kilograms and ", round(f[i + (length(flow[,,1])*4)],4)," liters .", "\n")))
-#     wCount <- sum(f[i + (length(flow[,,1])*3)]) + wCount
-#     lCount <- sum(f[i + (length(flow[,,1])*4)]) + lCount
-#     
-#     for(intW in 1:nrow(tonIntervals)){
-#       #searchInterval <- between(wCount/1000, tonIntervals[intW,1], tonIntervals[intW,2])
-#       searchInterval <- between(wCount, tonIntervals[intW,1], tonIntervals[intW,2]) # To be deleted, just trial 
-#       if(searchInterval){
-#         tLabel <- tonIntervals[intW,"tonLabel"]
-#       }
-#     }
-#     
-#     for(intV in 1:nrow(litIntervals)){
-#       searchInterval <- between(lCount, litIntervals[intV,1], litIntervals[intV,2])
-#       if(searchInterval){
-#         litLabel <- litIntervals[intV,"litLabel"]
-#       }
-#     }
-#     
-#     # fill the matrix
-#     if(i = 1){
-#       tonVect <- tLabel
-#       litVect <- litLabel
-#     }else{
-#       tonVect <- append(tonVect, tLabel)
-#       litVect <- append(litVect, litLabel)
-#     }
-# 
-#     
-#     # Inform on completion
-#     cat(silver(paste0("The weight count is: ", round(wCount, 4), " kilograms", "\n")))
-#     cat(silver(paste0("The volume count is: ", round(lCount, 4), " liters", "\n")))
-#     cat(silver(paste0("The ton    count is: ", tLabel, "\n")))
-#     cat(silver(paste0("The bucket count is: ", litLabel, "\n \n")))
-#     
-#     
-#   } else{
-#     
-#     cat(silver(paste0("The cell is empty, thus skipped \n")))
-#     
-#   }
-#   
-#   
-#   }
-# 
-# 
-# 
-# 
-# append("2", c(2,3))
-
-
 
 ## Assign flow ton and bucket to each element
 for(j in dim(flow)[2]:1){
