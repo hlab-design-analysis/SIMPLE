@@ -24,26 +24,19 @@
 #
 ########################################################################################
 
+## Clean env
+rm(list=setdiff(ls(), "supportResultsDir"))
+
 ## Load the flow generated
 # This is the flow every n iteration equal to the tube length (i.e. the tube is captured as element in the ltb list every time is completely full.)
 load(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
 
 ## Connect the flow matrices
 flow <- abind(
-  ltb[[14]], 
-  ltb[[13]], 
-  ltb[[12]], 
-  ltb[[11]], 
-  ltb[[10]],
-  ltb[[9]], 
-  ltb[[8]], 
-  ltb[[7]], 
-  ltb[[6]], 
-  ltb[[5]],
   ltb[[4]], 
   ltb[[3]], 
   ltb[[2]], 
-  ltb[[1]], 
+  ltb[[1]],
   along = 2
 )
 
