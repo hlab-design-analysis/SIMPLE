@@ -202,7 +202,7 @@ wf_spr_plot <- reshape2::melt(table(df_spr$indWt)) %>%
       legend.title = element_text(size = 9)
     )
 
-wf_plot <- ggarrange(
+wf_plot <- ggpubr::ggarrange(
   wf_her_plot,
   wf_spr_plot, 
   nrow = 1, 
@@ -226,7 +226,7 @@ ggsave(
 
 ## P4: Extract fishes from the weight distribution until the weight of the haul is reached
 # First, tune the search. The following parameter is the number of fishes added to find the number of fishes needed to fill the haul catch for a given species. 
-tuneSearch <- 10000 #  The higher the faster, but the less precise match with the haul catch (e.g. 10000 -> ~50kg and ~35kg imprecision on herring and sprat respectively).
+tuneSearch <- 100 #  The higher the faster, but the less precise match with the haul catch (e.g. 10000 -> ~50kg and ~35kg imprecision on herring and sprat respectively).
 
 # For herring
 species = "herring"
@@ -798,12 +798,12 @@ ggsave(
 #
 ########################################################################################
 # Reload tank and tube if needed
-# load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/tankFull_sim4.R")
-# flowtube <- buildTube(
-#   heightTube = heightTube,
-#   lengthTube = lengthTube,
-#   plot = 1
-# )
+ load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation5/tankFull_sim5.R")
+ flowtube <- buildTube(
+   heightTube = heightTube,
+   lengthTube = lengthTube,
+   plot = 1
+ )
 #tank[1:1900,,] <- NA
 #tanKK <- tank
 # suppressMessages(drawFlow(tank, flowtube, type = "species", multipleVars = 1, pIndicator = 1, sizeLabelText = .1))
@@ -812,7 +812,7 @@ ggsave(
 timeSteps = length(tank[,,1])/heightTube
 plotFlow = 0
 plotFlowEach = 100
-saveFlow = 0
+saveFlow = 1
 quality = 100
 addition = 0
 ltb <- list(flowtube)
@@ -1060,17 +1060,6 @@ load(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/S
 ## P2: Produce a representation of all the flow flown into the tube 
 # First connect the matrices in the stored version of the flow 
 flow <- abind(
-  ltb[[14]], 
-  ltb[[13]], 
-  ltb[[12]], 
-  ltb[[11]], 
-  ltb[[10]],
-  ltb[[9]], 
-  ltb[[8]], 
-  ltb[[7]], 
-  ltb[[6]], 
-  ltb[[5]], 
-  ltb[[4]], 
   ltb[[3]], 
   ltb[[2]], 
   ltb[[1]],
