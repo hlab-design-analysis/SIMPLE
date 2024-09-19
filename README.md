@@ -1,7 +1,7 @@
 # SIMPLE
 Code to simulate the fishes flow at landing in the small pelagic fishery and compare different sampling designs and estimators of the variance.
 
-The current status of the simulator is shown below. For instance consider a trip having caught 50 tonnes of fishes in three hauls, with the catch deriving from three hauls with proportion (in weight) of herring respectively being 0.66.
+The current status of the simulator is shown below. For instance consider a trip having caught 50 tonnes of fishes in three hauls, with the catch deriving from one haul with proportion (in weight) of herring respectively being 0.66.
 
 In order to accomodate such a catch we need to build a tank and tube of sufficient height and width. 
 The simulation parameters are hence:
