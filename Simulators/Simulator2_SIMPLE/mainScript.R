@@ -55,7 +55,7 @@ source("settings_SIMPLE/settings_SIMPLE.R")
 ########################################################################################
 
 ## P0: Give a name to your simulation
-simName = 5
+simName = 4
 
 ## Create a folder to store results 
 # Light results are stored in the repository indicated in the header
