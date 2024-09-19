@@ -71,9 +71,56 @@ The fishes are then "sinked" to the bottom of the tank, i.e. they fill all the s
   <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/allSinkedTank_sim4.png" width="1000" title="hover text">
 </p>
 
-Finally the fishes are allowed to flow through the tube. This is done by sampling from the bottom of the tank an amount of fishes equal (or all fishes in case the total amount of fishes in the bottom row is less than) the height of the tube at each time step, until the tank is full. The tube matrix is saved when the time step is equal to its length, ensuring the possibility to reconstruct each step of the flow. At each time step a plot of the flow can be produced and stored, to be later used to produce a video of the flow. 
+Finally the fishes are allowed to flow through the tube. This is done by sampling from the bottom of the tank an amount of fishes equal (or all fishes in case the total amount of fishes in the bottom row is less than) the height of the tube at each time step, until the tank is full. The tube matrix is saved when the time step is equal to its length, ensuring the possibility to reconstruct each step of the flow. At each time step a plot of the flow can be produced and stored, to be later used to produce a video of the flow (note this may temporary differ here from the simulation presented above.. :). 
 
 https://github.com/hlab-design-analysis/SIMPLE/assets/99275660/a76c112c-ff2b-4caf-a6a9-4a3ebcabb65b
+
+The information on the flow of fishes is recorded leading to the possibility of representing the whole flow that happened in the tube, from the start until both the tank and the tube are completely empty. 
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowTot_sim4_static.png" width="1000" title="hover text">
+</p>
+
+This flow is then free of the long empty sections on the right (corresponding to the phase in which the tube was to be filled) and on the right (corresponding to the phase in which the tube got empty again). 
+Finally, the flow is segmented by an algorithm that moves along the flow matrix from the first fish entering the tube and to the last and assign each of the fishes to a ton and a bucket. 
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowSegmentedInTons.png" width="1000" title="hover text">
+</p>
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowSegmentedInBuckets.png" width="1000" title="hover text">
+</p>
+
+Once the flow is segmented two strategy of sampling an agreed number (n = 30) of buckets are applied. 
+
+<br> 
+<br> 
+
+First, an initial simple random sampling (SRS) scheme is applied, by extracting randomly the buckets and linking them to the ton they belong to. 
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/selectedTonSRS.png" width="1000" title="hover text">
+</p>
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/selectedBucketsSRS.png" width="1000" title="hover text">
+</p>
+
+
+Second, a systematic sampling (SS) scheme is applied, by generating all possible combination of n (n = 30) buckets available from the population of buckets, extracting one sequence at random, and linking the resulting buckets to the ton they belong to. 
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/selectedTonSS.png" width="1000" title="hover text">
+</p>
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/selectedBucketsSS.png" width="1000" title="hover text">
+</p>
+
+Finally, the proportion obtained using the two schemes are checked leading to the results of the simulation. 
+
+
 
 
 
