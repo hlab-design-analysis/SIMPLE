@@ -121,7 +121,23 @@ Second, a systematic sampling (SS) scheme is applied, by generating all possible
 Finally, the proportion obtained using the two schemes are checked leading to the results of the simulation. 
 
 
+```math
 
+\begin{tabular}{l|r|r|r|r|r}
+\hline
+Scheme & Species & E(P) & V(P) & P & P - E(P)\\
+\hline
+SRS & 1 & 0.6576712 & 0.0006320 & 0.66 & 0.0023288\\
+\hline
+SRS & 2 & 0.3423288 & 0.0006320 & 0.33 & 0.0123288\\
+\hline
+SS & 1 & 0.6616518 & 0.0006749 & 0.66 & 0.0016518\\
+\hline
+SS & 2 & 0.3383482 & 0.0006749 & 0.33 & 0.0083482\\
+\hline
+\end{tabular}
+
+```
 
 
 
