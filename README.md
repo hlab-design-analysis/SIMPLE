@@ -1,18 +1,18 @@
 # SIMPLE
 Code to simulate the fishes flow at landing in the small pelagic fishery and compare different sampling designs and estimators of the variance.
 
-The current status of the simulator is shown below. For instance consider a trip having caught 18 tonnes of fishes in three hauls, with the catch deriving from three hauls with proportion (in weight) of herring respectively being 0.85, 0.50, 0.25.
+The current status of the simulator is shown below. For instance consider a trip having caught 50 tonnes of fishes in three hauls, with the catch deriving from three hauls with proportion (in weight) of herring respectively being 0.66.
 
 In order to accomodate such a catch we need to build a tank and tube of sufficient height and width. 
 The simulation parameters are hence:
 
 ``` 
-nHaul = 3 # Number of hauls
-p_herring = c(0.85, 0.50, 0.25) # Proportion of herring. 
-W = c(10000, 3000, 5000) # Catch of both species. 
-tankHeight = 2000
-tankLength = 1000
-heightTube = 100 
+nHaul = 1 # Number of hauls
+p_herring = c(0.66) # Proportion of herring. 
+W = c(50000) # Catch of both species. 
+tankHeight = 3500
+tankLength = 2000
+heightTube = 1000 
 lengthTube = 3000
 
 ```
@@ -22,20 +22,20 @@ The fishes caught sampled are expected to come from an empirical length weight d
   <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/LWRcatch_4.png" width="500" title="hover text">
 </p>
 
-Therefore the simulator generates the single fishes by sampling from a species - specific weight distribution until the weight of the catch specified for each haul is met. 
+Therefore the simulator generates the single fishes by sampling from a species - specific weight distribution until the weight of the catch specified for each haul (just one in this case) is met. 
 
 <p align="center">
   <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/DistExtractedFishsim4.png" width="500" title="hover text">
 </p>
 
 Once a vector of fishes belonging to a species with a weight assigned to each is generated and the fishes are mixed randomly, the weight variable is used to calculate the volume of each fish based on the species it belongs to (conv. factors: her = 932.274568364 gram/L; spr = 852.182251494 gram/L). 
-These information flow into an array containing information on each fish species, weight and volume used to represent the details of the catch in each haul. 
+These information flow into an array containing information on each fish species, weight and volume used to represent the details of the catch in each of the hauls. 
 
 <p align="center">
   <img src="https://github.com/hlab-design-analysis/SIMPLE/assets/99275660/cb63d60f-29fa-4f37-8285-ecbb14eeb4f9" width="500" title="hover text">
 </p>
 
-This is done for each haul, allowing us to build an haul list containing all the information needed for the simulation. 
+This is done for each of the hauls, allowing us to build an haul list containing all the information needed for the simulation. 
 
 ```
 ## We obtain the features of the haul enclosed in the haulList object: 
@@ -71,7 +71,7 @@ The fishes are then "sinked" to the bottom of the tank, i.e. they fill all the s
   <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/allSinkedTank_sim4.png" width="1000" title="hover text">
 </p>
 
-Finally the fishes are allowed to flow through the tube. This is done by sampling from the bottom of the tank an amount of fishes equal (or all fishes in case the total amount of fishes in the bottom row is less than) the height of the tube at each time step, until the tank is full. The tube matrix is saved when the time step is equal to its length, ensuring the possibility to reconstruct each step of the flow. At each time step a plot of the flow can be produced and stored, to be later used to produce a video of the flow. The simulation takes about one hour to run without plotting and it is estimated to take one hundred of hours if a video of it has to be generated. 
+Finally the fishes are allowed to flow through the tube. This is done by sampling from the bottom of the tank an amount of fishes equal (or all fishes in case the total amount of fishes in the bottom row is less than) the height of the tube at each time step, until the tank is full. The tube matrix is saved when the time step is equal to its length, ensuring the possibility to reconstruct each step of the flow. At each time step a plot of the flow can be produced and stored, to be later used to produce a video of the flow. 
 
 https://github.com/hlab-design-analysis/SIMPLE/assets/99275660/a76c112c-ff2b-4caf-a6a9-4a3ebcabb65b
 
