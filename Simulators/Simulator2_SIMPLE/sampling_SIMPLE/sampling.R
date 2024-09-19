@@ -238,12 +238,70 @@ samplingFrequency <- 30
 ## Extract randomly n buckets
 extractedBucketsSRS <- sample(flow[,,7], samplingFrequency)
 
+# Find corresponding tons
+indexesSRS <- flow %>% 
+  melt %>%
+  filter(Var3 %in% c(6,7)) %>%
+  mutate(selected = ifelse(Var3 == 7 & value %in% extractedBucketsSRS, 1, 0)) %>% 
+  filter(Var3 == 7) %>% 
+  #select(Var1, Var2, value) %>% 
+  filter(selected == 1) %>%
+  select(Var1, Var2) %>%
+  rename(row = Var1, column = Var2) %>% 
+  mutate(rowcol = paste0(row, "_",column))
+
+tonBucketCombiSRS <- flow %>% 
+  melt %>%
+  filter(Var3 == 6) %>%
+  rename(row = Var1, column = Var2) %>% 
+  mutate(rowcol = paste0(row, "_",column)) %>% 
+  filter(rowcol %in% indexes$rowcol)
+
+tonVecSRS <- unique(tonBucketCombiSRS$value)
+
+## Visualise the tons selected 
+f <- flow
+p <- f %>% 
+  melt %>%
+  filter(Var3 == 6) %>% 
+  mutate(selected = ifelse(is.na(value), NA, ifelse(value %in% tonVecSRS, 1, 0))) %>% 
+  dplyr::select(-Var3) %>% 
+  dplyr::rename(
+    column = Var2,
+    row = Var1, 
+    value = value
+  ) %>% 
+  mutate(
+    selected = as.character(selected)
+  ) %>% 
+  ggplot(aes(column, row, fill = selected), color = "black") +
+  geom_tile() + 
+  labs(fill = "Selected ton \n") +
+  scale_fill_manual(
+    values = c("gray", "red"), na.value = "black",
+    labels = c("0", "1", "empty")) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom"
+  )
+
+ggsave(
+  filename = paste0("selectedTonSRS.png"),
+  plot = p,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 20,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
+
 ## Visualise the buckets selected 
 f <- flow
 f[,,7] <- ifelse(is.na(f[,,7]), NA, ifelse(f[,,7] %in% extractedBucketsSRS, 1, 0))
 table(f[,,7], useNA = "al")
 
-## Visualize the buckets selected 
+# Plot
 p <- f %>% 
   melt %>%
   filter(Var3 == 7) %>% 
@@ -268,7 +326,7 @@ p <- f %>%
     )
 
 ggsave(
-  filename = paste0("selectedBucketsSS.png"),
+  filename = paste0("selectedBucketsSRS.png"),
   plot = p,
   path = paste0("results_SIMPLE/Simulation", simName),
   width = 20,
@@ -353,13 +411,13 @@ bucketInterval <- seq(1, max(flow[,,7], na.rm = T), 1)
 possibleBucketComb <- do_systematic_samples_N_n (N=length(bucketInterval), n=30)
 
 # Pick one randomly 
-bucketVec <- possibleBucketComb[sample(nrow(possibleBucketComb), 1),]
+extractedBucketsSS <- possibleBucketComb[sample(nrow(possibleBucketComb), 1),]
 
 # Find corresponding tons
-indexes <- flow %>% 
+indexesSS <- flow %>% 
   melt %>%
   filter(Var3 %in% c(6,7)) %>%
-  mutate(selected = ifelse(Var3 == 7 & value %in% bucketVec, 1, 0)) %>% 
+  mutate(selected = ifelse(Var3 == 7 & value %in% extractedBucketsSS, 1, 0)) %>% 
   filter(Var3 == 7) %>% 
   #select(Var1, Var2, value) %>% 
   filter(selected == 1) %>%
@@ -374,7 +432,7 @@ tonBucketCombi <- flow %>%
   mutate(rowcol = paste0(row, "_",column)) %>% 
   filter(rowcol %in% indexes$rowcol)
 
-tonVec <- unique(tonBucketCombi$value)
+tonVecSS <- unique(tonBucketCombi$value)
 
 
 ## Visualise the tons selected 
@@ -383,7 +441,7 @@ f <- flow
 p <- f %>% 
   melt %>%
   filter(Var3 == 6) %>% 
-  mutate(selected = ifelse(is.na(value), NA, ifelse(value %in% tonVec, 1, 0))) %>% 
+  mutate(selected = ifelse(is.na(value), NA, ifelse(value %in% tonVecSS, 1, 0))) %>% 
   dplyr::select(-Var3) %>% 
   dplyr::rename(
     column = Var2,
@@ -405,7 +463,7 @@ p <- f %>%
   )
 
 ggsave(
-  filename = paste0("selectedTons.png"),
+  filename = paste0("selectedTonsSS.png"),
   plot = p,
   path = paste0("results_SIMPLE/Simulation", simName),
   width = 20,
