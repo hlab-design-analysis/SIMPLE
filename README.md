@@ -125,7 +125,7 @@ Finally, the proportion obtained using the two schemes are checked leading to th
 </p>
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/finalComparisonSchemes.png" width="1000" height="800" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/finalComparisonSchemes.png" width="1000" height="500" title="hover text">
 </p>
 
 
