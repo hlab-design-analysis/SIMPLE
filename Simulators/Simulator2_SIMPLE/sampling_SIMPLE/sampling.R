@@ -25,7 +25,7 @@
 ########################################################################################
 
 ## Clean env
-rm(list=setdiff(ls(), c("supportResultsDir", "simName"))); gc()
+rm(list=setdiff(ls(), c("supportResultsDir", "simName", "p_herring"))); gc()
 
 ## Load the flow generated
 # This is the flow every n iteration equal to the tube length (i.e. the tube is captured as element in the ltb list every time is completely full.)
@@ -187,8 +187,8 @@ p <- flow %>%
   ) %>% 
   ggplot(aes(column, row, fill = value), color = "black") +
   geom_tile() + 
-  theme_bw() #+ 
-  #theme(legend.position = "none")
+  theme_bw() + 
+  theme(legend.position = "none")
 
 ggsave(
   filename = paste0("flowSegmentedInTons.png"),
@@ -255,7 +255,7 @@ tonBucketCombiSRS <- flow %>%
   filter(Var3 == 6) %>%
   rename(row = Var1, column = Var2) %>% 
   mutate(rowcol = paste0(row, "_",column)) %>% 
-  filter(rowcol %in% indexes$rowcol)
+  filter(rowcol %in% indexesSRS$rowcol)
 
 tonVecSRS <- unique(tonBucketCombiSRS$value)
 
@@ -337,8 +337,8 @@ ggsave(
 )
 
 ## First create an empty list of samples
-samplesList <- as.list(rep(NA, length(extractedBucketsSRS)))
-names(samplesList) <- paste0("sample", 1:length(extractedBucketsSRS))
+samplesList_SRS <- as.list(rep(NA, length(extractedBucketsSRS)))
+names(samplesList_SRS) <- paste0("sample", 1:length(extractedBucketsSRS))
 
 ## Then create the list of the attributes, for those fishes that were selected 
 fishesSelectedID <- sapply(1:length(extractedBucketsSRS),  function(x){flow[,,1][which(flow[,,7] %in% extractedBucketsSRS[x], arr.ind = T)]})
@@ -348,8 +348,8 @@ fishesSelectedV <- sapply(1:length(extractedBucketsSRS),  function(x){flow[,,4][
 fishesSelectedH <- sapply(1:length(extractedBucketsSRS),  function(x){flow[,,5][which(flow[,,7] %in% extractedBucketsSRS[x], arr.ind = T)]})
 fishesSelectedT <- sapply(1:length(extractedBucketsSRS),  function(x){flow[,,6][which(flow[,,7] %in% extractedBucketsSRS[x], arr.ind = T)]})
 
-for(i in 1:length(samplesList)){
-  samplesList[[i]] = list(
+for(i in 1:length(samplesList_SRS)){
+  samplesList_SRS[[i]] = list(
     "bucket" = extractedBucketsSRS[i],
     "identifier" = fishesSelectedID[[i]],
     "species" = fishesSelectedSP[[i]], 
@@ -360,10 +360,9 @@ for(i in 1:length(samplesList)){
   )
 }
 
-
 ## Transform into a df
-samplesDf <- do.call(rbind, lapply(1:length(samplesList), function(x) do.call(cbind, samplesList[[x]])))
-finalDf_long <- samplesDf %>% 
+samplesDf_SRS <- do.call(rbind, lapply(1:length(samplesList_SRS), function(x) do.call(cbind, samplesList_SRS[[x]])))
+finalDf_long_SRS <- samplesDf_SRS %>% 
   as.data.frame() %>% 
   dplyr::group_by(bucket, species) %>% 
   dplyr::summarize(
@@ -380,12 +379,12 @@ finalDf_long <- samplesDf %>%
     pWeight = weightSpecies/weightTot
   )
 
-finalDf_wide <- finalDf_long %>% 
+finalDf_wide_SRS <- finalDf_long_SRS %>% 
   select(bucket, species, pWeight) %>% 
   pivot_wider(names_from = c(2), values_from = pWeight) 
 
 # Store results for simple random sampling 
-resultsSRSSampling <- finalDf_long %>% 
+resultsSRSSampling <- finalDf_long_SRS %>% 
   select(bucket, species, pWeight) %>% 
   dplyr::group_by(species) %>% 
   dplyr::summarise(
@@ -513,27 +512,27 @@ ggsave(
 
 ## Calculate the proportion in the bucket selected
 # Extract fishes according to the bucket
-fishesSelected <-  lapply(1:length(tonVec), function(x){
-  fishesSelectedSp <-  flow[,,2][which(flow[,,7] %in% buckVec[x], arr.ind = T)]
-  fishesSelectedW  <-  flow[,,3][which(flow[,,7] %in% buckVec[x], arr.ind = T)]
+fishesSelected_SS <-  lapply(1:length(tonVecSS), function(x){
+  fishesSelectedSp <-  flow[,,2][which(flow[,,7] %in% extractedBucketsSS[x], arr.ind = T)]
+  fishesSelectedW  <-  flow[,,3][which(flow[,,7] %in% extractedBucketsSS[x], arr.ind = T)]
 })
-fishesSelected
+fishesSelected_SS
 
 ## First create an empty list of samples
-samplesList <- as.list(rep(NA, length(buckVec)))
-names(samplesList) <- paste0("sample", 1:length(buckVec))
+samplesList_SS <- as.list(rep(NA, length(extractedBucketsSS)))
+names(samplesList_SS) <- paste0("sample", 1:length(extractedBucketsSS))
 
 ## Then create the list of the attributes, for those fishes that were selected 
-fishesSelectedID <- sapply(1:length(buckVec),  function(x){flow[,,1][which(flow[,,7] %in% buckVec[x], arr.ind = T)]})
-fishesSelectedSP <- sapply(1:length(buckVec),  function(x){flow[,,2][which(flow[,,7] %in% buckVec[x], arr.ind = T)]})
-fishesSelectedW <- sapply(1:length(buckVec),  function(x){flow[,,3][which(flow[,,7] %in% buckVec[x], arr.ind = T)]})
-fishesSelectedV <- sapply(1:length(buckVec),  function(x){flow[,,4][which(flow[,,7] %in% buckVec[x], arr.ind = T)]})
-fishesSelectedH <- sapply(1:length(buckVec),  function(x){flow[,,5][which(flow[,,7] %in% buckVec[x], arr.ind = T)]})
-fishesSelectedT <- sapply(1:length(buckVec),  function(x){flow[,,6][which(flow[,,7] %in% buckVec[x], arr.ind = T)]})
+fishesSelectedID <- sapply(1:length(extractedBucketsSS),  function(x){flow[,,1][which(flow[,,7] %in% extractedBucketsSS[x], arr.ind = T)]})
+fishesSelectedSP <- sapply(1:length(extractedBucketsSS),  function(x){flow[,,2][which(flow[,,7] %in% extractedBucketsSS[x], arr.ind = T)]})
+fishesSelectedW <- sapply(1:length(extractedBucketsSS),  function(x){flow[,,3][which(flow[,,7] %in% extractedBucketsSS[x], arr.ind = T)]})
+fishesSelectedV <- sapply(1:length(extractedBucketsSS),  function(x){flow[,,4][which(flow[,,7] %in% extractedBucketsSS[x], arr.ind = T)]})
+fishesSelectedH <- sapply(1:length(extractedBucketsSS),  function(x){flow[,,5][which(flow[,,7] %in% extractedBucketsSS[x], arr.ind = T)]})
+fishesSelectedT <- sapply(1:length(extractedBucketsSS),  function(x){flow[,,6][which(flow[,,7] %in% extractedBucketsSS[x], arr.ind = T)]})
 
-for(i in 1:length(samplesList)){
+for(i in 1:length(samplesList_SS)){
   samplesList[[i]] = list(
-    "bucket" = buckVec[i],
+    "bucket" = extractedBucketsSS[i],
     "identifier" = fishesSelectedID[[i]],
     "species" = fishesSelectedSP[[i]], 
     "weight" = fishesSelectedW[[i]],
@@ -544,8 +543,8 @@ for(i in 1:length(samplesList)){
 }
 
 ## Transform into a df
-samplesDf <- do.call(rbind, lapply(1:length(samplesList), function(x) do.call(cbind, samplesList[[x]])))
-finalDf_long <- samplesDf %>% 
+samplesDf_SS <- do.call(rbind, lapply(1:length(samplesList_SS), function(x) do.call(cbind, samplesList_SS[[x]])))
+finalDf_long_SS <- samplesDf_SS %>% 
   as.data.frame() %>% 
   dplyr::group_by(bucket, species) %>% 
   dplyr::summarize(
@@ -562,18 +561,76 @@ finalDf_long <- samplesDf %>%
     pWeight = weightSpecies/weightTot
   )
 
-finalDf_wide <- finalDf_long %>% 
+finalDf_wide_SS <- finalDf_long_SS %>% 
   select(bucket, species, pWeight) %>% 
   pivot_wider(names_from = c(2), values_from = pWeight) #%>% 
+
 #rename("Weight proportion of herring" = 1, "Weight proportion of sprat" = 2)
 
 # Store results for systematic sampling 
-resultsSysSampling <- finalDf_long %>% 
+resultsSSSampling <- finalDf_long_SS %>% 
   select(bucket, species, pWeight) %>% 
   dplyr::group_by(species) %>% 
   dplyr::summarise(
     meanSampledProportion = mean(pWeight), 
     varSampledProportion = var(pWeight)
   )
+
+## Finally, place together the results
+# As a table
+finalSummary_schemes <- rbind(
+  resultsSRSSampling %>% mutate(scheme = "SRS") %>% relocate(scheme, .before = 1), 
+  resultsSSSampling %>% mutate(scheme = "SS") %>% relocate(scheme, .before = 1)
+  ) %>% 
+  mutate(
+   proportionTrue = ifelse(species == 1, 0.66, 0.33)  # To be replaced with p_herring 
+  ) %>% 
+  rowwise() %>% 
+  mutate(
+    diffSimTrue = abs(proportionTrue - meanSampledProportion)
+  ) %>% 
+  rename(
+    "Scheme" = 1, 
+    "Species" = 2, 
+    "E(P)" = 3, 
+    "V(P)" = 4, 
+    "P" = 5, 
+    "P - E(P)" = 6
+  )
+
+# Save as image
+kable(finalSummary_schemes) %>% 
+  kable_classic(full_width = F, html_font = "Cambria") %>% 
+  kable_styling("striped", full_width = TRUE) %>%
+  as_image(file = paste0("results_SIMPLE/Simulation", simName, "/results_ComparisonSchemes_", simName, ".jpg"), height = 1)
+
+# As a plot
+theTruthPlot <- data.frame(
+  scheme = "The truth", 
+  bucket = NA, 
+  species = c(1, 2),
+  weightSpecies = NA,  
+  weightTot = NA,
+  pWeight = c(0.66, 0.33) # This should be replace with p_herring
+)
+
+finalDf_long_schemes <- rbind(
+  finalDf_long_SRS %>% mutate(scheme = "SRS") %>% relocate(scheme, .before = 1), 
+  finalDf_long_SS %>% mutate(scheme = "SS") %>% relocate(scheme, .before = 1)
+  )
+
+comparisonSchemesPlot <- finalDf_long_schemes %>% 
+  as.data.frame() %>%
+  mutate(
+    species = as.factor(ifelse(species == 1, "herring", "sprat"))
+    ) %>% 
+  ggplot() + 
+  geom_boxplot(aes(x = species, y = pWeight, fill = scheme), position=position_dodge(1)) + 
+  geom_point(data = theTruthPlot, aes(x = species, y = pWeight, fill = scheme), shape = 8, color = "red") + 
+  scale_y_continuous(limits = c(0,1), breaks = seq(0,1,.05)) + 
+  scale_fill_manual(values = c("yellow", "orange", "black")) + 
+  labs(fill = "", x = "Species", y = "Proportion (in weight)") + 
+  theme_bw() + 
+  coord_flip()
 
 
