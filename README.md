@@ -121,12 +121,13 @@ Second, a systematic sampling (SS) scheme is applied, by generating all possible
 Finally, the proportion obtained using the two schemes are checked leading to the results of the simulation, showing the proportion estimated (E(P)) with each sampling design ("Scheme"), its variance ("V(P)"), and how much it differs ("P-E(P)") from the true value ("P") of the proportion for the two species (1 = Herring, 2 = Sprat). 
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_ComparisonSchemes_4.jpg" width="1000" height="500" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/finalComparisonSchemes.png" width="1000" height="500" title="hover text">
 </p>
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/finalComparisonSchemes.png" width="1000" height="500" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_ComparisonSchemes_4.jpg" width="1000" height="500" title="hover text">
 </p>
+
 
 
 
