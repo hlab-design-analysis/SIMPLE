@@ -166,8 +166,11 @@ for(j in dim(flow)[2]:1){
 }
 
 ## Save the sampling
-save(flow, file = paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_flowSoFar_iequal_",i,"_jequal_",j,".RData"))
+#save(flow, file = paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_flowSoFar_iequal_",i,"_jequal_",j,".RData"))
+#save(flow, file = paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_flowBucketTonsAssigned.RData")
 
+## Load flow
+load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/Sim_4_flowBucketTonsAssigned.RData")
 
 ## Visualize the results
 p <- flow %>% 
@@ -183,7 +186,8 @@ p <- flow %>%
     value = as.character(value)
   ) %>% 
   ggplot(aes(column, row, fill = value), color = "black") +
-  geom_tile() #+ 
+  geom_tile() + 
+  theme_bw() #+ 
   #theme(legend.position = "none")
 
 ggsave(
@@ -211,7 +215,8 @@ p <- flow %>%
   ) %>% 
   ggplot(aes(column, row, fill = value), color = "black") +
   geom_tile() + 
-  theme(legend.position = "none")
+  theme_bw() + 
+  theme(legend.position = "none") 
 
 ggsave(
   filename = paste0("flowSegmentedInBuckets.png"),
@@ -224,68 +229,21 @@ ggsave(
   bg = "white"
 )
 
-## Extract a random number at the specified frequency 
-sampleEachTon <- 25
-randTon <- sample(1:sampleEachTon,1)
-for(i in 1:(max(flow[,,6], na.rm = T)/sampleEachTon)){
-  
-  if(i == 1){
-    
-    tmp <- randTon
-    tonVec <- tmp
-    
-  } else {
-    
-    tmp <- tmp + 25
-    tonVec <- c(tonVec, tmp)
-    
-  }
-  
-}
 
-## Extract the first bucket from each of the selected tons
-buckVec <- sapply(1:length(buckVec), function(x){
-  min(flow[,,7][which(flow[,,6] %in% tonVec[x], arr.ind=TRUE)])
-})
+### Simple random sampling
 
+## Set sampling frequency
+samplingFrequency <- 30
 
-## Visualise the tons selected 
+## Extract randomly n buckets
+extractedBucketsSRS <- sample(flow[,,7], samplingFrequency)
+
+## Visualise the buckets selected 
 f <- flow
-f[,,6] <- ifelse(is.na(f[,,6]), NA, ifelse(f[,,6] %in% tonVec, 1, 0))
-table(f[,,6], useNA = "al")
-
-p <- f %>% 
-  melt %>%
-  filter(Var3 == 6) %>% 
-  dplyr::select(-Var3) %>% 
-  dplyr::rename(
-    column = Var2,
-    row = Var1, 
-    value = value
-  ) %>% 
-  mutate(
-    value = as.character(value)
-  ) %>% 
-  ggplot(aes(column, row, fill = value), color = "black") +
-  geom_tile() + 
-  theme(legend.position = "none")
-
-ggsave(
-  filename = paste0("theplot.png"),
-  plot = p,
-  path = paste0("results_SIMPLE/Simulation", simName),
-  width = 20,
-  height = 20,
-  units = "cm",
-  dpi = 500,
-  bg = "white"
-)
-
-## Visualise for the buckets selected 
-f <- flow
-f[,,7] <- ifelse(is.na(f[,,7]), NA, ifelse(f[,,7] %in% buckVec, 1, 0))
+f[,,7] <- ifelse(is.na(f[,,7]), NA, ifelse(f[,,7] %in% extractedBucketsSRS, 1, 0))
 table(f[,,7], useNA = "al")
 
+## Visualize the buckets selected 
 p <- f %>% 
   melt %>%
   filter(Var3 == 7) %>% 
@@ -300,10 +258,17 @@ p <- f %>%
   ) %>% 
   ggplot(aes(column, row, fill = value), color = "black") +
   geom_tile() + 
-  theme(legend.position = "none")
+  labs(fill = "Selected bucket \n") +
+  scale_fill_manual(
+    values = c("gray", "red"), na.value = "black",
+    labels = c("0", "1", "empty")) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom"
+    )
 
 ggsave(
-  filename = paste0("theplot.png"),
+  filename = paste0("selectedBucketsSS.png"),
   plot = p,
   path = paste0("results_SIMPLE/Simulation", simName),
   width = 20,
@@ -313,6 +278,180 @@ ggsave(
   bg = "white"
 )
 
+## First create an empty list of samples
+samplesList <- as.list(rep(NA, length(extractedBucketsSRS)))
+names(samplesList) <- paste0("sample", 1:length(extractedBucketsSRS))
+
+## Then create the list of the attributes, for those fishes that were selected 
+fishesSelectedID <- sapply(1:length(extractedBucketsSRS),  function(x){flow[,,1][which(flow[,,7] %in% extractedBucketsSRS[x], arr.ind = T)]})
+fishesSelectedSP <- sapply(1:length(extractedBucketsSRS),  function(x){flow[,,2][which(flow[,,7] %in% extractedBucketsSRS[x], arr.ind = T)]})
+fishesSelectedW <- sapply(1:length(extractedBucketsSRS),  function(x){flow[,,3][which(flow[,,7] %in% extractedBucketsSRS[x], arr.ind = T)]})
+fishesSelectedV <- sapply(1:length(extractedBucketsSRS),  function(x){flow[,,4][which(flow[,,7] %in% extractedBucketsSRS[x], arr.ind = T)]})
+fishesSelectedH <- sapply(1:length(extractedBucketsSRS),  function(x){flow[,,5][which(flow[,,7] %in% extractedBucketsSRS[x], arr.ind = T)]})
+fishesSelectedT <- sapply(1:length(extractedBucketsSRS),  function(x){flow[,,6][which(flow[,,7] %in% extractedBucketsSRS[x], arr.ind = T)]})
+
+for(i in 1:length(samplesList)){
+  samplesList[[i]] = list(
+    "bucket" = extractedBucketsSRS[i],
+    "identifier" = fishesSelectedID[[i]],
+    "species" = fishesSelectedSP[[i]], 
+    "weight" = fishesSelectedW[[i]],
+    "volume" = fishesSelectedV[[i]],
+    "haul" = fishesSelectedH[[i]],
+    "ton" = fishesSelectedT[[i]]
+  )
+}
+
+
+## Transform into a df
+samplesDf <- do.call(rbind, lapply(1:length(samplesList), function(x) do.call(cbind, samplesList[[x]])))
+finalDf_long <- samplesDf %>% 
+  as.data.frame() %>% 
+  dplyr::group_by(bucket, species) %>% 
+  dplyr::summarize(
+    weightSpecies = sum(weight)
+  ) %>% 
+  ungroup() %>% 
+  group_by(bucket) %>% 
+  mutate(
+    weightTot = sum(weightSpecies)
+  ) %>% 
+  ungroup() %>% 
+  rowwise() %>% 
+  mutate(
+    pWeight = weightSpecies/weightTot
+  )
+
+finalDf_wide <- finalDf_long %>% 
+  select(bucket, species, pWeight) %>% 
+  pivot_wider(names_from = c(2), values_from = pWeight) 
+
+# Store results for simple random sampling 
+resultsSRSSampling <- finalDf_long %>% 
+  select(bucket, species, pWeight) %>% 
+  dplyr::group_by(species) %>% 
+  dplyr::summarise(
+    meanSampledProportion = mean(pWeight), 
+    varSampledProportion = var(pWeight)
+  )
+
+### Systematic sampling
+
+# Compute the possible ton combination. [Note this line was surpassed by using the bucket combination as systematic samples taken with low amount of tons provide sequences skipping part of the flow]
+#possibleTonComb <- do_systematic_samples_N_n (N=length(unique(as.numeric(flow[,,6]))), n=30)
+
+# Pick one randomly 
+#tonVec <- possibleTonComb[sample(nrow(possibleTonComb), 1),]
+
+# Extract the first bucket from each of the selected tons
+#buckVec <- sapply(1:length(tonVec), function(x){
+#  min(flow[,,7][which(flow[,,6] %in% tonVec[x], arr.ind=TRUE)])
+#})
+
+# Compute the possible bucket combinations
+bucketInterval <- seq(1, max(flow[,,7], na.rm = T), 1)
+possibleBucketComb <- do_systematic_samples_N_n (N=length(bucketInterval), n=30)
+
+# Pick one randomly 
+bucketVec <- possibleBucketComb[sample(nrow(possibleBucketComb), 1),]
+
+# Find corresponding tons
+indexes <- flow %>% 
+  melt %>%
+  filter(Var3 %in% c(6,7)) %>%
+  mutate(selected = ifelse(Var3 == 7 & value %in% bucketVec, 1, 0)) %>% 
+  filter(Var3 == 7) %>% 
+  #select(Var1, Var2, value) %>% 
+  filter(selected == 1) %>%
+  select(Var1, Var2) %>%
+  rename(row = Var1, column = Var2) %>% 
+  mutate(rowcol = paste0(row, "_",column))
+
+tonBucketCombi <- flow %>% 
+  melt %>%
+  filter(Var3 == 6) %>%
+  rename(row = Var1, column = Var2) %>% 
+  mutate(rowcol = paste0(row, "_",column)) %>% 
+  filter(rowcol %in% indexes$rowcol)
+
+tonVec <- unique(tonBucketCombi$value)
+
+
+## Visualise the tons selected 
+f <- flow
+
+p <- f %>% 
+  melt %>%
+  filter(Var3 == 6) %>% 
+  mutate(selected = ifelse(is.na(value), NA, ifelse(value %in% tonVec, 1, 0))) %>% 
+  dplyr::select(-Var3) %>% 
+  dplyr::rename(
+    column = Var2,
+    row = Var1, 
+    value = value
+  ) %>% 
+  mutate(
+    selected = as.character(selected)
+  ) %>% 
+  ggplot(aes(column, row, fill = selected), color = "black") +
+  geom_tile() + 
+  labs(fill = "Selected ton \n") +
+  scale_fill_manual(
+    values = c("gray", "red"), na.value = "black",
+    labels = c("0", "1", "empty")) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom"
+  )
+
+ggsave(
+  filename = paste0("selectedTons.png"),
+  plot = p,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 20,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
+
+## Visualise the buckets selected 
+f <- flow
+
+p <- f %>% 
+  melt %>%
+  filter(Var3 == 7) %>% 
+  mutate(selected = ifelse(is.na(value), NA, ifelse(value %in% bucketVec, 1, 0))) %>% 
+  dplyr::select(-Var3) %>% 
+  dplyr::rename(
+    column = Var2,
+    row = Var1, 
+    value = value
+  ) %>% 
+  mutate(
+    selected = as.character(selected)
+  ) %>% 
+  ggplot(aes(column, row, fill = selected), color = "black") +
+  geom_tile() + 
+  labs(fill = "Selected bucket \n") +
+  scale_fill_manual(
+    values = c("gray", "red"), na.value = "black",
+    labels = c("0", "1", "empty")) + 
+  theme_bw() +
+  theme(
+    legend.position = "bottom"
+  )
+
+ggsave(
+  filename = paste0("selectedBucketsSS.png"),
+  plot = p,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 20,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
 
 ## Calculate the proportion in the bucket selected
 # Extract fishes according to the bucket
@@ -350,8 +489,8 @@ for(i in 1:length(samplesList)){
 samplesDf <- do.call(rbind, lapply(1:length(samplesList), function(x) do.call(cbind, samplesList[[x]])))
 finalDf_long <- samplesDf %>% 
   as.data.frame() %>% 
-  group_by(bucket, species) %>% 
-  summarize(
+  dplyr::group_by(bucket, species) %>% 
+  dplyr::summarize(
     weightSpecies = sum(weight)
   ) %>% 
   ungroup() %>% 
@@ -369,5 +508,14 @@ finalDf_wide <- finalDf_long %>%
   select(bucket, species, pWeight) %>% 
   pivot_wider(names_from = c(2), values_from = pWeight) #%>% 
 #rename("Weight proportion of herring" = 1, "Weight proportion of sprat" = 2)
+
+# Store results for systematic sampling 
+resultsSysSampling <- finalDf_long %>% 
+  select(bucket, species, pWeight) %>% 
+  dplyr::group_by(species) %>% 
+  dplyr::summarise(
+    meanSampledProportion = mean(pWeight), 
+    varSampledProportion = var(pWeight)
+  )
 
 
