@@ -111,7 +111,7 @@ First, an initial simple random sampling (SRS) scheme is applied, by extracting 
 Second, a systematic sampling (SS) scheme is applied, by generating all possible combination of n (n = 30) buckets available from the population of buckets, extracting one sequence at random, and linking the resulting buckets to the ton they belong to. 
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/selectedTonSS.png" width="1000" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/selectedTonsSS.png" width="1000" title="hover text">
 </p>
 
 <p align="center">
