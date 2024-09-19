@@ -55,7 +55,7 @@ source("settings_SIMPLE/settings_SIMPLE.R")
 ########################################################################################
 
 ## P0: Give a name to your simulation
-simName = 4
+simName = 5
 
 ## Create a folder to store results 
 # Light results are stored in the repository indicated in the header
@@ -77,9 +77,6 @@ if(!dir.exists(paste0("results_SIMPLE/Simulation", simName))){
 nHaul = 1 # Number of hauls
 p_herring = c(0.66) # Proportion of herring. If nHaul > 1, use vector with one value per each
 W = c(50000) # Catch of both species If nHaul > 1, use vector with one value per each 
-
-# [c(60000, 10000, 30000) 95.00% 21]
-# [c(10000, 3000, 5000) m21]
 
 # Tank properties
 tankHeight = 3500
