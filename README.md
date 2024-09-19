@@ -115,7 +115,7 @@ Second, a systematic sampling (SS) scheme is applied, by generating all possible
 </p>
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/selectedBucketsSS.png" width="1000" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/selectedBucketsSS.png" width="1000" height="800" title="hover text">
 </p>
 
 Finally, the proportion obtained using the two schemes are checked leading to the results of the simulation. 
