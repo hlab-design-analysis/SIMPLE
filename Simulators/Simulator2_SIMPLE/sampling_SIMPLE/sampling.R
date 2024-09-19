@@ -599,7 +599,7 @@ finalSummary_schemes <- rbind(
   )
 
 # Save as image
-kable(finalSummary_schemes) %>% 
+tableSummaryImg <- kable(finalSummary_schemes) %>% 
   kable_classic(full_width = F, html_font = "Cambria") %>% 
   kable_styling("striped", full_width = TRUE) %>%
   as_image(file = paste0("results_SIMPLE/Simulation", simName, "/results_ComparisonSchemes_", simName, ".jpg"), height = 1)
@@ -632,5 +632,16 @@ comparisonSchemesPlot <- finalDf_long_schemes %>%
   labs(fill = "", x = "Species", y = "Proportion (in weight)") + 
   theme_bw() + 
   coord_flip()
+
+ggsave(
+  filename = paste0("finalComparisonSchemes.png"),
+  plot = comparisonSchemesPlot,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 20,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
 
 
