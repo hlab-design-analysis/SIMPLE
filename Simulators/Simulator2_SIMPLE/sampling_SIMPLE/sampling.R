@@ -22,7 +22,7 @@
 ########################################################################################
 #
 # Load data ----- 
-# Here we load the flow as it was created in the SmallPelagicFlowSim.R script.
+# Here we load the flow as it was created in the segmentation_SIMPLE script.
 #
 ########################################################################################
 
