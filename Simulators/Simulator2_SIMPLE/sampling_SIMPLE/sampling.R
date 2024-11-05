@@ -31,7 +31,7 @@ rm(list=setdiff(ls(), c("supportResultsDir", "simName", "p_herring"))); gc()
 
 ## Load the flow segmented 
 load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/Sim_4_flowBucketTonsAssigned.RData")
-
+ 
 ## Visualize the results
 p <- flow %>% 
   melt %>%
