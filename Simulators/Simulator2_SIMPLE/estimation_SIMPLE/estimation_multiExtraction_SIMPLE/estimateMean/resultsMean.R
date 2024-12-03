@@ -67,6 +67,13 @@ comparisonSchemesPlot_multiExtraction <- finalDf_long_schemes_multiExtraction %>
     axis.text = element_text(size = 5), 
     legend.title = element_text(size = 5), 
     legend.text = element_text(size = 5), 
+    strip.background = element_rect(
+      fill = "black"
+    ), 
+    strip.text = element_text(
+      color = "white", 
+      size = 6
+    ),
     legend.position = "none"
     ) + 
   coord_flip() + 
