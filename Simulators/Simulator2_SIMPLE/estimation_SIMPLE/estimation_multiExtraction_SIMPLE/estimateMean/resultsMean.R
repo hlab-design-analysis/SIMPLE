@@ -63,7 +63,10 @@ comparisonSchemesPlot_multiExtraction <- finalDf_long_schemes_multiExtraction %>
   labs(fill = "", x = "Species", y = "Proportion (in weight)") + 
   theme_bw() +
   theme(
-    axis.text = element_text(size = 6), 
+    axis.title = element_text(size = 5), 
+    axis.text = element_text(size = 5), 
+    legend.title = element_text(size = 5), 
+    legend.text = element_text(size = 5), 
     legend.position = "none"
     ) + 
   coord_flip() + 
@@ -71,7 +74,7 @@ comparisonSchemesPlot_multiExtraction <- finalDf_long_schemes_multiExtraction %>
 
 ggsave(
   filename = paste0("finalComparisonSchemes_multiExtraction.png"),
-  plot = comparisonSchemesPlot,
+  plot = comparisonSchemesPlot_multiExtraction,
   path = paste0("results_SIMPLE/Simulation", simName),
   width = 20,
   height = 10,
