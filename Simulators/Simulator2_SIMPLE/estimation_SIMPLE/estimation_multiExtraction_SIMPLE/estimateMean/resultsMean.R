@@ -13,12 +13,16 @@ finalSummary_schemes_multiExtraction <- rbind(
   mutate(
     diffSimTrue = abs(proportionTrue - meanSampledProportion)
   ) %>% 
+  dplyr::select(
+    -weightSpecies, - weightTot
+  ) %>% 
   rename(
     "Scheme" = 1, 
     "Species" = 2, 
-    "E(P)" = 3, 
-    "P" = 4, 
-    "P - E(P)" = 5
+    "Replica" = 3, 
+    "E(P)" = 4, 
+    "P" = 5, 
+    "P - E(P)" = 6
   )
 
 # Save as image
