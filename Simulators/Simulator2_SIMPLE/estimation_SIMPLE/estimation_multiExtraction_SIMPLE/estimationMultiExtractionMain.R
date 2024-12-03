@@ -44,7 +44,7 @@ source("estimation_SIMPLE/estimation_multiExtraction_SIMPLE/estimateMean/results
 
 ## P3: Estimate the variance 
 # Estimate variance for SRS samples 
-source("estimation_SIMPLE/estimation_multiExtraction_SIMPLE/estimateVariance/estimateVariance_SRS.R")
+#source("estimation_SIMPLE/estimation_multiExtraction_SIMPLE/estimateVariance/estimateVariance_SRS.R")
 
 # Estimate variance for SS samples 
 #source("estimation_SIMPLE/estimateVariance_SS.R")
