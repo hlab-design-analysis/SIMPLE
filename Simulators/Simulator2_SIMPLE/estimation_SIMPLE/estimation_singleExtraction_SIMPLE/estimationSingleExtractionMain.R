@@ -1,13 +1,14 @@
 ########################################################################################
 #
-# Estimation
+# Estimation single extraction
 # 
 ########################################################################################
 #
 # This script estimates the proportion and variance of a simulated flow of small 
 # pelagics, based on the flow produced in SmallPelagicFlowSim.R script and using the 
-# samples extracted in the sampling.R script.
-# 
+# samples extracted in the sampling.R script. The estimation is done for one 
+# extraction, meaning that there is only one sampling event in which n buckets are
+# collected. 
 #
 ########################################################################################
 #
@@ -33,14 +34,18 @@ load(paste0(supportResultsDir, "/fishesSampled/Simulation", simName, "/Sim_", si
 
 ## P2: Estimate the mean 
 # Estimate mean for SRS samples 
-source("estimation_SIMPLE/estimateMean_SRS.R")
+source("estimation_SIMPLE/estimation_singleExtraction_SIMPLE/estimateMean/estimateMean_SRS.R")
 
 # Estimate mean for SS samples 
-source("estimation_SIMPLE/estimateMean_SS.R")
+source("estimation_SIMPLE/estimation_singleExtraction_SIMPLE/estimateMean/estimateMean_SS.R")
 
-## P4: Estimate the mean 
+# Summarize the results
+source("estimation_SIMPLE/estimation_singleExtraction_SIMPLE/estimateMean/resultsMean.R")
+
+## P4: Estimate the variance 
 # Estimate variance for SRS samples 
 #source("estimation_SIMPLE/estimateVariance_SRS.R")
 
 # Estimate variance for SS samples 
 #source("estimation_SIMPLE/estimateVariance_SS.R")
+

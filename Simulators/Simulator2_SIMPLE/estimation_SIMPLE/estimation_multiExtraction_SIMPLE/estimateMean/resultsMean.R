@@ -1,8 +1,8 @@
 ## Finally, place together the results
 #  As a table
-finalSummary_schemes <- rbind(
-  resultsSRSampling %>% mutate(scheme = "SRS") %>% relocate(scheme, .before = 1), 
-  resultsSSampling %>% mutate(scheme = "SS") %>% relocate(scheme, .before = 1)
+finalSummary_schemes_multiExtraction <- rbind(
+  resultsSRSampling_multiExtraction %>% mutate(scheme = "SRS") %>% relocate(scheme, .before = 1), 
+  resultsSSampling_multiExtraction %>% mutate(scheme = "SS") %>% relocate(scheme, .before = 1)
 ) %>% 
   data.frame() %>% 
   mutate(
@@ -22,13 +22,13 @@ finalSummary_schemes <- rbind(
   )
 
 # Save as image
-tableSummaryImg <- kable(finalSummary_schemes) %>% 
+tableSummaryImg_multiExtraction <- kable(finalSummary_schemes_multiExtraction) %>% 
   kable_classic(full_width = F, html_font = "Cambria") %>% 
   kable_styling("striped", full_width = TRUE) %>%
-  as_image(file = paste0("results_SIMPLE/Simulation", simName, "/results_ComparisonSchemes_", simName, ".jpg"), height = 1)
+  as_image(file = paste0("results_SIMPLE/Simulation", simName, "/results_ComparisonSchemes_", simName,"_multiExtraction", ".jpg"), height = 1)
 
 # As a plot
-theTruthPlot <- data.frame(
+theTruthPlot_multiExtraction <- data.frame(
   #scheme = "The truth", 
   bucket = NA, 
   species = c(1, 2),
@@ -37,32 +37,27 @@ theTruthPlot <- data.frame(
   pWeight = c(0.66, 0.33) # This should be replace with p_herring
 )
 
-finalDf_long_schemes <- rbind(
-  finalDf_long_SRS %>% mutate(scheme = "SRS") %>% relocate(scheme, .before = 1), 
-  finalDf_long_SS %>% mutate(scheme = "SS") %>% relocate(scheme, .before = 1)
+finalDf_long_schemes_multiExtraction <- rbind(
+  finalDf_long_SRS_multiExtraction %>% mutate(scheme = "SRS") %>% relocate(scheme, .before = 1), 
+  finalDf_long_SS_multiExtraction %>% mutate(scheme = "SS") %>% relocate(scheme, .before = 1)
 )
 
 
-finalDf_long_schemes_medians <- finalDf_long_schemes %>% 
+finalDf_long_schemes_medians_multiExtraction <- finalDf_long_schemes_multiExtraction %>% 
   group_by(Replica, species, scheme) %>% 
   summarize(
     median = median(pWeightBucket)
   ) 
 
-finalDf_long_schemes_medians %>% 
-  group_by(Replica, scheme) %>% 
-  summarize(median = sum(median)) %>% 
-  view()
-
-comparisonSchemesPlot <- finalDf_long_schemes %>% 
+comparisonSchemesPlot_multiExtraction <- finalDf_long_schemes_multiExtraction %>% 
   as.data.frame() %>%
   mutate(
     species = as.factor(ifelse(species == 1, "herring", "sprat"))
   ) %>% 
   ggplot() + 
   geom_boxplot(aes(x = species, y = pWeightBucket, fill = factor(Replica)), position=position_dodge(1), width=0.1, size = .1, outlier.colour = "gray50") + 
-  geom_point(data = finalDf_long_schemes_medians, aes(x = species, y = median, color = factor(Replica)), shape = 23, size = .5, position=position_dodge(1)) +
-  geom_point(data = theTruthPlot, aes(x = species, y = pWeight), shape = 8, color = "red") + 
+  geom_point(data = finalDf_long_schemes_medians_multiExtraction, aes(x = species, y = median, color = factor(Replica)), shape = 23, size = .5, position=position_dodge(1)) +
+  geom_point(data = theTruthPlot_multiExtraction, aes(x = species, y = pWeight), shape = 8, color = "red") + 
   scale_y_continuous(limits = c(0,1), breaks = seq(0,1,.05)) + 
   #scale_fill_manual(values = c("yellow", "orange", "black")) + 
   labs(fill = "", x = "Species", y = "Proportion (in weight)") + 
@@ -75,7 +70,7 @@ comparisonSchemesPlot <- finalDf_long_schemes %>%
   facet_wrap(~scheme) 
 
 ggsave(
-  filename = paste0("finalComparisonSchemes.png"),
+  filename = paste0("finalComparisonSchemes_multiExtraction.png"),
   plot = comparisonSchemesPlot,
   path = paste0("results_SIMPLE/Simulation", simName),
   width = 20,

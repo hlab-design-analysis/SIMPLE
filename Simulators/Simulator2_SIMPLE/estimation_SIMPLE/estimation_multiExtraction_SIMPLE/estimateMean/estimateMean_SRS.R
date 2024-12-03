@@ -1,6 +1,6 @@
 ## P1: Estimate mean SRS
 # Estimate mean in SRS
-finalDf_long_SRS <-  resampling_SRS %>% 
+finalDf_long_SRS_multiExtraction <-  resampling_SRS %>% 
   as.data.frame() %>% 
   #dplyr::filter(species != 0) %>% # TBF!
   dplyr::group_by(bucket, species, Replica, ton) %>% 
@@ -19,7 +19,7 @@ finalDf_long_SRS <-  resampling_SRS %>%
   )
 
 # Store results for simple random sampling 
-resultsSRSampling <- finalDf_long_SRS %>% 
+resultsSRSampling_multiExtraction <- finalDf_long_SRS_multiExtraction %>% 
   dplyr::select(bucket, species, weightSpecies, Replica) %>% 
   dplyr::group_by(species, Replica) %>% 
   dplyr::summarise(
@@ -36,7 +36,7 @@ resultsSRSampling <- finalDf_long_SRS %>%
   )
 
 # Create wide version
-finalDf_wide_SRS <- finalDf_long_SRS %>% 
+finalDf_wide_SRS_multiExtraction <- finalDf_long_SRS_multiExtraction %>% 
   dplyr::select(bucket, species, ton, pWeightBucket, weightTot, Replica) %>% 
   pivot_wider(names_from = c("species"), values_from = pWeightBucket) 
 
@@ -87,13 +87,13 @@ finalDf_wide_SRS <- finalDf_long_SRS %>%
 
 ## Generate a final df looking alike the ones shared by Nuno 
 # First create a reference with the amount of buckets extracted by Replica
-extractedBucketsSRS <- finalDf_wide_SRS %>% 
+extractedBucketsSRS <- finalDf_wide_SRS_multiExtraction %>% 
   dplyr::select(Replica, bucket) %>% 
   distinct() %>% 
   dplyr::group_by(Replica) %>% 
   summarize(NBucketsTotal = n())
 
-finalDf_wide_SRS <- finalDf_wide_SRS %>%
+finalDf_wide_SRS_multiExtraction <- finalDf_wide_SRS_multiExtraction %>%
   dplyr::rename(
     BucketName = bucket, 
     BucketSequenceTon = ton, 
@@ -127,7 +127,7 @@ finalDf_wide_SRS <- finalDf_wide_SRS %>%
   ungroup()
 
 # Reorder the columns (we need the new added in the end to emulate the data passed by Nuno)
-finalDf_wide_SRS <- finalDf_wide_SRS %>% 
+finalDf_wide_SRS_multiExtraction <- finalDf_wide_SRS_multiExtraction %>% 
   dplyr::select(
     "SAparentId",
     "Trip",
