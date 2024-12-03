@@ -314,7 +314,7 @@ f <- flow
 p <- f %>% 
   melt %>%
   filter(Var3 == 7) %>% 
-  mutate(selected = ifelse(is.na(value), NA, ifelse(value %in% bucketVec, 1, 0))) %>% 
+  mutate(selected = ifelse(is.na(value), NA, ifelse(value %in% extractedBucketsSS, 1, 0))) %>% 
   dplyr::select(-Var3) %>% 
   dplyr::rename(
     column = Var2,
