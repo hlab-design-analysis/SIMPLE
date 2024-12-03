@@ -128,12 +128,15 @@ Finally, the proportion obtained using the two schemes are checked leading to th
   <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_ComparisonSchemes_4_singleExtraction.jpg" width="1000" height="500" title="hover text">
 </p>
 
+When the mentioned sampling schemes are repeated (n = 500) the following results are observed. 
 
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/finalComparisonSchemes_multiExtraction.png" width="1000" height="500" title="hover text">
+</p>
 
-
-
-
-
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_ComparisonSchemes_4_multiExtraction.jpg" width="1000" height="500" title="hover text">
+</p>
 
 
 
