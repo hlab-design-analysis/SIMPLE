@@ -36,6 +36,7 @@ suppressPackageStartupMessages(library(ggpubr))
 suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(abind))
 suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(reactable))
 
 ## P2: Print message
 cat('\n')
