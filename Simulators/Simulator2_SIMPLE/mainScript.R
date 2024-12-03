@@ -47,6 +47,10 @@ ResultsDir <- "results"
 ## P4: Load the additional settings
 source("settings_SIMPLE/settings_SIMPLE.R")
 
+
+## P5: Define additional parameters
+cores = 30 # For parallel computing, decrease if needed! 
+
 ########################################################################################
 #
 # Create simulation files -----
