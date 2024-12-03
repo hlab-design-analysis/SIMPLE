@@ -54,7 +54,12 @@ comparisonSchemesPlot_singleExtraction <- finalDf_long_schemes_singleExtraction 
   scale_shape_manual(values = c("SRS" = 4, "SS" = 23)) + 
   labs(fill = "", x = "Species", y = "Proportion (in weight)") + 
   theme_bw() +
-  theme(axis.text = element_text(size = 6)) + 
+  theme(
+    axis.title = element_text(size = 5), 
+    axis.text = element_text(size = 5), 
+    legend.title = element_text(size = 5), 
+    legend.text = element_text(size = 5)
+    ) + 
   coord_flip()
 
 ggsave(
@@ -64,6 +69,6 @@ ggsave(
   width = 20,
   height = 10,
   units = "cm",
-  dpi = 500,
+  dpi = 1000,
   bg = "white"
 )
