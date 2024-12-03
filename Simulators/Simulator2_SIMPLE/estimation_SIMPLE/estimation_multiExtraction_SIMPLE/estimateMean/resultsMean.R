@@ -83,8 +83,8 @@ ggsave(
   filename = paste0("finalComparisonSchemes_multiExtraction.png"),
   plot = comparisonSchemesPlot_multiExtraction,
   path = paste0("results_SIMPLE/Simulation", simName),
-  width = 20,
-  height = 10,
+  width = 30,
+  height = 20,
   units = "cm",
   dpi = 500,
   bg = "white"
