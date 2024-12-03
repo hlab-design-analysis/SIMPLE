@@ -97,7 +97,7 @@ ggsave(
 samplingFrequency <- 30
 
 ## Extract randomly n buckets
-extractedBucketsSRS <- sample(flow[,,7], samplingFrequency)
+extractedBucketsSRS <- sample(flow[,,7][!is.na(flow[,,7])], samplingFrequency)
 
 # Find corresponding tons
 indexesSRS <- flow %>% 
@@ -225,8 +225,8 @@ for(i in 1:length(samplesList_SRS)){
 ## Transform into a df
 samplesDf_SRS <- do.call(rbind, lapply(1:length(samplesList_SRS), function(x) do.call(cbind, samplesList_SRS[[x]])))
 
-## Save the systematic sampling df 
-#save(samplesDf_SRS, file = paste0(supportResultsDir, "/fishesSampled/Simulation", simName, "/Sim_", simName, "/fishesSampled_SimpleRandomSampling.RData"))
+## Save the simple random sampling df 
+save(samplesDf_SRS, file = paste0(supportResultsDir, "/fishesSampled/Simulation", simName, "/Sim_", simName, "/fishesSampled_SimpleRandomSampling.RData"))
 
 ### Systematic sampling
 
@@ -382,4 +382,4 @@ for(i in 1:length(samplesList_SS)){
 samplesDf_SS <- do.call(rbind, lapply(1:length(samplesList_SS), function(x) do.call(cbind, samplesList_SS[[x]])))
 
 ## Save the systematic sampling df 
-#save(samplesDf_SS, file = paste0(supportResultsDir, "/fishesSampled/Simulation", simName, "/Sim_", simName, "/fishesSampled_SystematicSampling.RData"))
+save(samplesDf_SS, file = paste0(supportResultsDir, "/fishesSampled/Simulation", simName, "/Sim_", simName, "/fishesSampled_SystematicSampling.RData"))
