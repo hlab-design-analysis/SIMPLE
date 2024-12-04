@@ -139,6 +139,12 @@ When the mentioned sampling schemes are repeated (n = 500) the following results
 </p>
 
 
+Eight alternative methods for calculating the variance of systematic samples were tested. These methods are defined by Wolter (1984).
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/varianceEstimatorsWolter1984.png" width="1000" height="500" title="hover text">
+</p>
+
 
 
 
