@@ -15,21 +15,37 @@ finalSummary_schemes_multiExtraction <- rbind(
   ) %>% 
   dplyr::select(
     -weightSpecies, - weightTot
+  ) 
+
+# Since is too many rows to be saved otherwise we summarize further
+finalSummary_schemes_multiExtraction_median <- finalSummary_schemes_multiExtraction %>% 
+  ungroup() %>%
+  dplyr::group_by(scheme, species) %>% 
+  reframe(
+    medianSampledProportion = median(meanSampledProportion), 
+    IQRSampledProportion = IQR(meanSampledProportion)
+  ) %>% 
+  mutate(
+    proportionTrue = ifelse(species == 1, 0.66, 0.33)  # To be replaced with p_herring 
+  ) %>% 
+  rowwise() %>% 
+  mutate(
+    diffSimTrue = abs(proportionTrue - medianSampledProportion)
   ) %>% 
   rename(
     "Scheme" = 1, 
     "Species" = 2, 
     "Replica" = 3, 
-    "E(P)" = 4, 
+    "MedE(P)" = 4, 
     "P" = 5, 
-    "P - E(P)" = 6
+    "P - MedE(P)" = 6
   )
 
 # Save as image
-tableSummaryImg_multiExtraction <- kable(finalSummary_schemes_multiExtraction) %>% 
+tableSummaryImg_multiExtraction <- kable(finalSummary_schemes_multiExtraction_median) %>% 
   kable_classic(full_width = F, html_font = "Cambria") %>% 
   kable_styling("striped", full_width = TRUE) %>%
-  as_image(file = paste0("results_SIMPLE/Simulation", simName, "/results_ComparisonSchemes_", simName,"_multiExtraction", ".jpg"), height = 1)
+  as_image(file = paste0("results_SIMPLE/Simulation", simName, "/results_ComparisonSchemes_", simName,"_multiExtraction", ".jpg"))
 
 # As a plot
 theTruthPlot_multiExtraction <- data.frame(
@@ -59,7 +75,7 @@ comparisonSchemesPlot_multiExtraction <- finalDf_long_schemes_multiExtraction %>
     species = as.factor(ifelse(species == 1, "herring", "sprat"))
   ) %>% 
   ggplot() + 
-  geom_boxplot(aes(x = species, y = pWeightBucket, fill = factor(Replica)), position=position_dodge(1), width=0.1, size = .1, outlier.colour = "gray80", color = "gray70" alpha = .5) + 
+  geom_boxplot(aes(x = species, y = pWeightBucket, fill = factor(Replica)), position=position_dodge(1), width=0.1, size = .1, outlier.colour = "gray80", color = "gray70", alpha = .5) + 
   geom_point(data = finalDf_long_schemes_medians_multiExtraction, aes(x = species, y = median, color = factor(Replica)), shape = 23, size = .1, position=position_dodge(1), alpha = .5) +
   geom_point(data = theTruthPlot_multiExtraction, aes(x = species, y = pWeight), shape = 8, color = "red") + 
   scale_y_continuous(limits = c(0,1), breaks = seq(0,1,.05)) + 

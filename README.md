@@ -135,7 +135,7 @@ When the mentioned sampling schemes are repeated (n = 500) the following results
 </p>
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_ComparisonSchemes_4_multiExtraction.jpg" width="500" height="10000" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_ComparisonSchemes_4_multiExtraction.jpg" width="500" height="500" title="hover text">
 </p>
 
 
