@@ -150,12 +150,14 @@ The comparison between the estimator was made across schemes (SRS and SS) for ea
 The comparison of the variances produced by different estimators allowed to assess that the estimator V8 is the variance estimator performing best in the majority of the cases and across both sampling schemes. 
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/finalComparisonSchemes_varianceEstimation_multiExtraction.png" width="1000" height="100000" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/finalComparisonSchemes_varianceEstimation_multiExtraction.png" width="1000" height="500" title="hover text">
 </p>
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_FINAL.jpg" width="10000" height="10000" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_FINAL.jpg"width="1000" height="500" title="hover text">
 </p>
+
+
 
 
 
