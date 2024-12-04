@@ -59,7 +59,7 @@ comparisonSchemesPlot_multiExtraction <- finalDf_long_schemes_multiExtraction %>
     species = as.factor(ifelse(species == 1, "herring", "sprat"))
   ) %>% 
   ggplot() + 
-  geom_boxplot(aes(x = species, y = pWeightBucket, fill = factor(Replica)), position=position_dodge(1), width=0.1, size = .1, outlier.colour = "gray50") + 
+  geom_boxplot(aes(x = species, y = pWeightBucket, fill = factor(Replica)), position=position_dodge(1), width=0.1, size = .1, outlier.colour = "gray80", color = "gray70" alpha = .5) + 
   geom_point(data = finalDf_long_schemes_medians_multiExtraction, aes(x = species, y = median, color = factor(Replica)), shape = 23, size = .1, position=position_dodge(1), alpha = .5) +
   geom_point(data = theTruthPlot_multiExtraction, aes(x = species, y = pWeight), shape = 8, color = "red") + 
   scale_y_continuous(limits = c(0,1), breaks = seq(0,1,.05)) + 
