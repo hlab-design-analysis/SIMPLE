@@ -32,7 +32,7 @@ rm(list=setdiff(ls(), c("p_herring", "nHaul", "W", "cores", "supportResultsDir",
 load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/Sim_4_flowBucketTonsAssigned.RData")
 
 ### Set number of replicates
-samplingTimes <- 10
+samplingTimes <- 1000
 
 
 ## Set sampling frequency
