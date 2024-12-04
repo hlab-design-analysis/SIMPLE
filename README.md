@@ -146,7 +146,7 @@ Eight alternative methods for calculating the variance of systematic samples wer
 </p>
 
 
-The comparison between the estimator was made across schemes (SRS and SS) for each replica (n = 1000). The results are available for both (SRS)[https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_SRS.jpg] and  (SS)[https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_SS.jpg] at the given links. 
+The comparison between the estimator was made across schemes (SRS and SS) for each replica (n = 1000). The results are available for both [SRS](https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_SRS.jpg) and  [SS](https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_SS.jpg) at the given links. 
 The comparison of the variances produced by different estimators allowed to assess that the estimator V8 is the variance estimator performing best in the majority of the cases and across both sampling schemes. 
 
 <p align="center">
