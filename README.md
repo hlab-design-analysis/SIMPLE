@@ -149,11 +149,11 @@ Eight alternative methods for calculating the variance of systematic samples wer
 The comparison between the estimator was made across schemes (SRS and SS) for each replica (n = 1000). 
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_SRS.jpg" width="1000" height="500" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_SRS.jpg" width="1000" height="10000" title="hover text">
 </p>
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_SS.jpg" width="1000" height="500" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_SS.jpg" width="1000" height="10000" title="hover text">
 </p>
 
 
