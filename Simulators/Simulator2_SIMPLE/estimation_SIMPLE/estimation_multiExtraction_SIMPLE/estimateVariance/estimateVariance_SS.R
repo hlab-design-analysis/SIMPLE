@@ -7,7 +7,7 @@
 # names(a)
 # names(data[[1]])
 
-data <- finalDf_wide_SS
+data <- finalDf_wide_SS_multiExtraction
 data <- split(data, data$Replica)                              
 l <- length(data)
 
@@ -89,11 +89,15 @@ v8 <- Map(function(x, y, z, w) relist(if(unlist(x) > 0){
 }, skeleton = x), rho_k, s2, n, f) %>% 
   unlist()
 
-df <- data.frame((N^2/((N/n)*((data %>% map(~sum(.x[,8])))[1:l] %>% unlist()))^2) 
+df_varianceComparison_SS_multiExtraction <- data.frame((N^2/((N/n)*((data %>% map(~sum(.x[,8])))[1:l] %>% unlist()))^2) 
                  *rbind(v1,v2,v3,v4,v5,v6,v7,v8)) 
-colnames(df) = paste0("Resa_", 1:l)
+colnames(df_varianceComparison_SS_multiExtraction) = paste0("Replica_", 1:l)
 
 #table with highlighted min-values (columnwise)
-reactable(df,
+reactable(df_varianceComparison_SS_multiExtraction,
           defaultColDef = colDef(
-            style = highlight_min(df)))
+            style = highlight_min(df_varianceComparison_SS_multiExtraction)
+            )
+          )
+
+
