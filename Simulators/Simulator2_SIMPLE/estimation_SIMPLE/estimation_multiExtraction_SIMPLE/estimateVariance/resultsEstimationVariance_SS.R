@@ -95,5 +95,3 @@ ggsave(
   dpi = 500,
   bg = "white"
 )  
-
-
