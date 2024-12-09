@@ -46,8 +46,6 @@ source("estimation_SIMPLE/estimation_multiExtraction_SIMPLE/estimateMean/results
 # Define the number of Variance Estimators that are in use
 nVarEstimators <- 8
 
-# Estimate variance for SRS samples 
-source("estimation_SIMPLE/estimation_multiExtraction_SIMPLE/estimateVariance/estimateVariance_SRS.R")
-
 # Estimate variance for SS samples 
-#source("estimation_SIMPLE/estimateVariance_SS.R")
+source("estimation_SIMPLE/estimation_multiExtraction_SIMPLE/estimateVariance/estimateVariance_SS.R")
+
