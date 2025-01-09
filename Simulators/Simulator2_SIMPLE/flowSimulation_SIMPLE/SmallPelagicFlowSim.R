@@ -1026,6 +1026,7 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
 # Some element in the tube list still resulting NULL - delete them. 
 #ltb <- ltb[-which(lapply(ltb, function(x) is.null(x)) %>% unlist)]
 
+
 ## P2: Save/load the resulting matrix
 # The following line save the flow generated in the loop above, one element for an entire tube flown
 #save(ltb, file = paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))

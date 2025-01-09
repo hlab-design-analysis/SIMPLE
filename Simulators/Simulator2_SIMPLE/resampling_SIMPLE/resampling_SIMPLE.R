@@ -34,10 +34,8 @@ load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/Sim_4_flowBu
 ### Set number of replicates
 samplingTimes <- 1000
 
-
 ## Set sampling frequency
 samplingFrequency <- 30
-
 
 ## Resampling
 
@@ -50,6 +48,7 @@ parallel::clusterEvalQ(clust, c(library("tidyverse"), library("reshape2")))
 parallel::clusterExport(clust, c("resamplingFlowSRS", "samplingTimes", "flow", "samplingFrequency"))
 
 resampling_SRS <- parLapply(clust, 1:samplingTimes, function(x){
+  
   # Fit the predictions
   df <- resamplingFlowSRS()
   
@@ -65,7 +64,8 @@ resampling_SRS <- parLapply(clust, 1:samplingTimes, function(x){
 stopCluster(clust)
 
 for(i in 1:length(resampling_SRS)){ # Add replicas label
-  resampling_SRS[[i]]$Replica <- i
+
+    resampling_SRS[[i]]$Replica <- i
 }
 
 # Turn into a df 
