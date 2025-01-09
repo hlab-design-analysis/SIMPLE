@@ -125,6 +125,10 @@ lengthTube = 3000
 SimulationFromLog = 0 # Turn on: 1
 Simulation = 1 # Choosen simulation
 
+## Compression tube
+lateralCompression = 1 # Inevitably, some of the fishes at the end of the flow will be intervallated with water.
+typeLateralCompression = "sharp" #  Specify the type of compression desired. Sigmoid = pushes the fishes to the right, if the right cell is empty, originating a sigmoid shape. Sharp = Reassing fishes to cell to obtain the sharpest shape possible. 
+
 source("~/Personal_Eros_locale/SIMPLE/Simulators/Simulator2_SIMPLE/simulationLog_SIMPLE/simulationLog.R")
 
 ########################################################################################
@@ -185,9 +189,11 @@ source("flowSimulation_SIMPLE/SmallPelagicFlowSim.R")
 # and over this time based on user selection and computational power.) 
 #
 ########################################################################################
-## Produce the sampling (under development)
+## Produce the sampling (one extraction)
 source("sampling_SIMPLE/sampling.R")
 
+## Produce the resampling (multiple extractions)
+source("resampling_SIMPLE/resampling_SIMPLE.R")
 
 ########################################################################################
 #
@@ -197,5 +203,5 @@ source("sampling_SIMPLE/sampling.R")
 # samples extracted in the sampling.R script.
 #
 ########################################################################################
-## Produce the estimation (to be developed)
-source("estimation_SIMPLE/estimation.R")
+## Produce the estimation (for single and multiple extraction i.e. for sampling and resampling results)
+source("estimation_SIMPLE/estimationMain_SIMPLE.R")
