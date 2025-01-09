@@ -28,17 +28,7 @@
 rm(list=setdiff(ls(), c("supportResultsDir", "simName", "p_herring"))); gc()
 
 ## Load the flow generated
-# This is the flow every n iteration equal to the tube length (i.e. the tube is captured as element in the ltb list every time is completely full.)
-load(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
-
-## Connect the flow matrices
-flow <- abind(
-  ltb[[4]], 
-  ltb[[3]], 
-  ltb[[2]], 
-  ltb[[1]],
-  along = 2
-)
+load(paste0("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes", "/Simulation", simName, "/flow.R"))
 
 ## P1: Segment the flow into tonnes
 # Add a dimension for labelling

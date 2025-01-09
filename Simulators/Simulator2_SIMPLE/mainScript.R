@@ -127,8 +127,9 @@ Simulation = 1 # Choosen simulation
 
 ## Compression tube
 lateralCompression = 1 # Inevitably, some of the fishes at the end of the flow will be intervallated with water.
-typeLateralCompression = "sharp" #  Specify the type of compression desired. Sigmoid = pushes the fishes to the right, if the right cell is empty, originating a sigmoid shape. Sharp = Reassing fishes to cell to obtain the sharpest shape possible. 
+typeLateralCompression = "sharp" # Specify the type of compression desired.The latter can be "sigmoid", which pushes the fishes to the right, if the right cell is empty, originating a sigmoid shape or "sharp", reassinging fishes to cell to obtain the  sharpest shape possible.
 
+# Execute script
 source("~/Personal_Eros_locale/SIMPLE/Simulators/Simulator2_SIMPLE/simulationLog_SIMPLE/simulationLog.R")
 
 ########################################################################################
@@ -178,7 +179,24 @@ source("flowSimulation_SIMPLE/SmallPelagicFlowSim.R")
 
 ########################################################################################
 #
-# Sampling ----- 
+# Compression ----- 
+# The following line compress the flow produced at the prior step to avoid areas in which
+# fishes are mixed with empty spaces.
+# The compression is made only if the parameter "lateralCompression" is set to 1. 
+
+source("Simulator2_SIMPLE/lateralCompression_SIMPLE/lateralCompression_SIMPLE.R")
+
+########################################################################################
+#
+# Segmentation ----- 
+# The following line segment the flow produced at the prior step into tons and buckets.
+# These are later used to sample and estimate the proportion of herring and sprat. 
+#
+source("Simulator2_SIMPLE/segmentation_SIMPLE/segmentation_SIMPLE.R")
+
+########################################################################################
+#
+# Sampling and Re-sampling ----- 
 # The following line performs a systematic sampling based on user selection. 
 # In detail, the flow generated at the previous step is segmented in tons and buckets.
 # Then, based on the frequency specified by the user, a ton is selected as random start.
