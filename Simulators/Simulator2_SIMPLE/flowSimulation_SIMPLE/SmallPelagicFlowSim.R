@@ -1061,9 +1061,7 @@ load(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/S
 ## P2: Produce a representation of all the flow flown into the tube 
 # First connect the matrices in the stored version of the flow 
 flow <- abind(
-  ltb[[3]], 
-  ltb[[2]], 
-  ltb[[1]],
+  ltb,
   along = 2
 )
 
