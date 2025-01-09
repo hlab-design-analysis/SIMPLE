@@ -1032,8 +1032,18 @@ while(!(all(is.na(tank[1:nrow(tank)-1,,1])) & sum(!is.na(tank[nrow(tank),,1])) =
 #save(ltb, file = paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
 
 # The following line load the flow generated in the loop above, one element for an entire tube flown
-load(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
+# load(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_mtx.RData"))
 
+# Save the results (new version)
+# First connect the matrices in the stored version of the flow (obsolete)
+
+flow <- abind(
+  ltb,
+  along = 2
+)
+
+# Then save
+save(flow, file = paste0("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes", "/Simulation", simName, "/flow.R"))
 
 ########################################################################################
 #
@@ -1059,11 +1069,11 @@ load(paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/S
 ##
 
 ## P2: Produce a representation of all the flow flown into the tube 
-# First connect the matrices in the stored version of the flow 
-flow <- abind(
-  ltb,
-  along = 2
-)
+# First connect the matrices in the stored version of the flow (obsolete)
+#flow <- abind(
+#  ltb,
+#  along = 2
+#)
 
 ## Delete duplicates, if any
 ver <- which(duplicated(flow[,,1], MARGIN = c(1,2)) & flow[,,1]!=0, arr.ind = T)
