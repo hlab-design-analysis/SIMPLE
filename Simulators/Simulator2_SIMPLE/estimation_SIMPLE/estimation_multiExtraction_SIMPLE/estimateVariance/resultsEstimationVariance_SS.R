@@ -95,3 +95,69 @@ ggsave(
   dpi = 500,
   bg = "white"
 )  
+
+
+
+# Now with the mean to score them
+df_varianceComparison_SS_multiExtraction_meanBased <- df_varianceComparison_SS_multiExtraction %>% # Extract the summary of the variance results
+  t() %>% 
+  as.data.frame() %>% 
+  tibble::rownames_to_column("Replica") %>% 
+  pivot_longer(
+    cols = -"Replica", 
+    names_to = "varEstimator"
+  ) %>% 
+  dplyr::rename(variance = value) %>% 
+  group_by(varEstimator) %>% 
+  summarize(
+    meanVar = mean(variance), 
+    sdVar = sd(variance)
+  ) %>% 
+  arrange(meanVar)
+
+# Save it as a table 
+table_df_varianceComparison_FINAL_multiExtraction_summary <- df_varianceComparison_SS_multiExtraction_meanBased %>% 
+  dplyr::rename(
+    "Estimator" = 1, 
+    "Performance \n (mean of the variances found for each replica)" = 2,
+    "Dispersion \n (standard deviation of the variances found for each replica)" = 3
+  ) %>% 
+  kable() %>% # Save as image
+  kable_classic(full_width = F, html_font = "Cambria") %>% 
+  kable_styling("striped", full_width = TRUE) %>%
+  as_image(file = paste0("results_SIMPLE/Simulation", simName, "/results_VarianceComparisonSchemes_", simName,"_multiExtraction_FINAL_meanBased", ".jpg"))
+
+
+## P2: Plot the results
+df_varianceComparison_SS_multiExtraction_meanBased_plot <- df_varianceComparison_SS_multiExtraction_meanBased %>%
+  ggplot() + 
+  geom_col(aes(x = reorder(varEstimator, meanVar, decreasing = TRUE), y = meanVar, fill = varEstimator)) + 
+  coord_flip() + 
+  labs(x = "Variance estimator", y = "Mean of the variances in the replicas") + 
+  theme_bw() + 
+  theme(
+    axis.title = element_text(size = 5), 
+    axis.text = element_text(size = 5), 
+    legend.title = element_text(size = 5), 
+    legend.text = element_text(size = 5), 
+    strip.background = element_rect(
+      fill = "black"
+    ), 
+    strip.text = element_text(
+      color = "white", 
+      size = 6
+    ),
+    legend.position = "none"
+  ) 
+
+# Save the results
+ggsave(
+  filename = paste0("finalComparisonSchemes_varianceEstimation_multiExtraction_meanBased.png"),
+  plot = df_varianceComparison_SS_multiExtraction_meanBased_plot,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 30,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)  

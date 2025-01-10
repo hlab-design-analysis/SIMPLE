@@ -174,7 +174,7 @@ Eight alternative methods for calculating the variance of systematic samples wer
 
 
 The comparison between the estimator was made for the systematic sampling scheme (SS) for each replica (n = 1000). The results are available for [SS](https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_SS.jpg) at the given link. 
-The comparison of the variances produced by different estimators allowed to assess that the estimator V8 is the variance estimator performing best in the majority of the cases. 
+The comparison of the variances produced by different estimators allowed to assess that the estimator V8 is the variance estimator performing best in the majority of the cases both considering the estimator that had the higher rate of lowest variance by replica and the mean variances by estimator. These results are presented respectively with two figures (plot and table) below.
 
 <p align="center">
   <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/finalComparisonSchemes_varianceEstimation_multiExtraction.png" width="1000" height="500" title="hover text">
@@ -184,7 +184,13 @@ The comparison of the variances produced by different estimators allowed to asse
   <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_FINAL.jpg"width="1000" height="500" title="hover text">
 </p>
 
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/finalComparisonSchemes_varianceEstimation_multiExtraction_meanBased.png" width="1000" height="500" title="hover text">
+</p>
 
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/results_VarianceComparisonSchemes_4_multiExtraction_FINAL_meanBased.jpg"width="1000" height="500" title="hover text">
+</p>
 
 
 
