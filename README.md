@@ -86,7 +86,7 @@ This flow is then free of the long empty sections on the right (corresponding to
 Please note that the flow at this stage can be compressed to avoid the areas at the end of it (on the left) where fishes are mixed with empty cells, shown below. 
 
 <p align="center">
-  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowSegmentedInTons.png" width="1000" title="hover text">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowPreCompression.png" width="1000" title="hover text">
 </p>
 
 Two compressions are available: i) "sigmoid", which pushes the fishes to the right, if the right cell is empty, originating a sigmoid shape or "sharp", reassinging fishes to cell to obtain the sharpest shape possible. These are respectively shown below. 
