@@ -207,6 +207,12 @@ source("Simulator2_SIMPLE/segmentation_SIMPLE/segmentation_SIMPLE.R")
 # and over this time based on user selection and computational power.) 
 #
 ########################################################################################
+## Set sampling frequency i.e. how many buckets are we extracting. 
+samplingFrequency <- 30
+
+### Set number of replicates for resampling
+samplingTimes <- 1000
+
 ## Produce the sampling (one extraction)
 source("sampling_SIMPLE/sampling.R")
 
@@ -221,5 +227,8 @@ source("resampling_SIMPLE/resampling_SIMPLE.R")
 # samples extracted in the sampling.R script.
 #
 ########################################################################################
+## Define the number of Variance Estimators that are in use
+nVarEstimators <- 8
+
 ## Produce the estimation (for single and multiple extraction i.e. for sampling and resampling results)
 source("estimation_SIMPLE/estimationMain_SIMPLE.R")

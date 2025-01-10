@@ -93,8 +93,6 @@ ggsave(
 ### Simple random sampling
 
 ## Demonstration 
-## Set sampling frequency
-samplingFrequency <- 30
 
 ## Extract randomly n buckets
 extractedBucketsSRS <- sample(flow[,,7][!is.na(flow[,,7])], samplingFrequency)

@@ -31,12 +31,6 @@ rm(list=setdiff(ls(), c("p_herring", "nHaul", "W", "cores", "supportResultsDir",
 ## Load the flow segmented 
 load("~/mnt/CNAS/SIMPLE_Auxiliary/flowTankTube/matrixes/Simulation4/Sim_4_flowBucketTonsAssigned.RData")
 
-### Set number of replicates
-samplingTimes <- 1000
-
-## Set sampling frequency
-samplingFrequency <- 30
-
 ## Resampling
 
 # For SRS 

@@ -43,8 +43,6 @@ source("estimation_SIMPLE/estimation_multiExtraction_SIMPLE/estimateMean/estimat
 source("estimation_SIMPLE/estimation_multiExtraction_SIMPLE/estimateMean/resultsMean.R")
 
 ## P3: Estimate the variance 
-# Define the number of Variance Estimators that are in use
-nVarEstimators <- 8
 
 # Estimate variance for SS samples 
 source("estimation_SIMPLE/estimation_multiExtraction_SIMPLE/estimateVariance/estimateVariance_SS.R")
