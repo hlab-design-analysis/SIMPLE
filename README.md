@@ -82,6 +82,23 @@ The information on the flow of fishes is recorded leading to the possibility of 
 </p>
 
 This flow is then free of the long empty sections on the right (corresponding to the phase in which the tube was to be filled) and on the right (corresponding to the phase in which the tube got empty again). 
+
+Please note that the flow at this stage can be compressed to avoid the areas at the end of it (on the left) where fishes are mixed with empty cells, shown below. 
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowSegmentedInTons.png" width="1000" title="hover text">
+</p>
+
+Two compressions are available: i) "sigmoid", which pushes the fishes to the right, if the right cell is empty, originating a sigmoid shape or "sharp", reassinging fishes to cell to obtain the sharpest shape possible. These are respectively shown below. 
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowPostCompression_typesigmoidal.png" width="1000" title="hover text">
+</p>
+
+<p align="center">
+  <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowPostCompression_typesharp.png" width="1000" title="hover text">
+</p>
+
 Finally, the flow is segmented by an algorithm that moves along the flow matrix from the first fish entering the tube and to the last and assign each of the fishes to a ton and a bucket. 
 
 <p align="center">
