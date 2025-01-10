@@ -89,7 +89,7 @@ Please note that the flow at this stage can be compressed to avoid the areas at 
   <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowPreCompression.png" width="1000" title="hover text">
 </p>
 
-Two compressions are available: i) "sigmoid", which pushes the fishes to the right, if the right cell is empty, originating a sigmoid shape or "sharp", reassinging fishes to cell to obtain the sharpest shape possible. These are respectively shown below. 
+Two compressions are available: i) "sigmoid", which pushes the fishes to the right, if the right cell is empty, originating a sigmoid shape or "sharp", reassinging fishes to cell to obtain the sharpest shape possible. These are respectively shown below (note that a zoomed portion i.e. only the left extreme of the flow is shown). 
 
 <p align="center">
   <img src="https://github.com/hlab-design-analysis/SIMPLE/blob/dev/Simulators/Simulator2_SIMPLE/results_SIMPLE/Simulation4/flowPostCompression_typesigmoidal.png" width="1000" title="hover text">
