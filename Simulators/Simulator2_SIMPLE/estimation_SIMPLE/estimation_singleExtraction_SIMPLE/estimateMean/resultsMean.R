@@ -5,7 +5,7 @@ finalSummary_schemes_singleExtraction <- rbind(
   resultsSSampling_singleExtraction %>% mutate(scheme = "SS") %>% relocate(scheme, .before = 1)
 ) %>% 
   mutate(
-    proportionTrue = ifelse(species == 1, 0.66, 0.33)  # To be replaced with p_herring 
+    proportionTrue = ifelse(species == 1, p_herring, 1-p_herring)  # To be replaced with p_herring 
   ) %>% 
   rowwise() %>% 
   mutate(
@@ -32,7 +32,7 @@ theTruthPlot_singleExtraction <- data.frame(
   species = c(1, 2),
   weightSpecies = NA,  
   weightTot = NA,
-  pWeight = c(0.66, 0.33) # This should be replace with p_herring
+  pWeight = c(p_herring, 1-p_herring) 
 )
 
 finalDf_long_schemes_singleExtraction <- rbind(
