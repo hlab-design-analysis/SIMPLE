@@ -157,4 +157,4 @@ for(j in dim(flow)[2]:1){
 
 ## Save the segmentation
 save(flow, file = paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_flowSoFar_iequal_",i,"_jequal_",j,".RData"))
-save(flow, file = paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_flowBucketTonsAssigned.RData")
+save(flow, file = paste0(supportResultsDir, "/flowTankTube/matrixes/Simulation", simName, "/Sim_", simName, "_flowBucketTonsAssigned.RData"))
