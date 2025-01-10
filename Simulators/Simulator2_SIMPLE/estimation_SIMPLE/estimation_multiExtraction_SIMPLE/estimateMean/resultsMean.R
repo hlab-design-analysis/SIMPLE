@@ -6,7 +6,7 @@ finalSummary_schemes_multiExtraction <- rbind(
 ) %>% 
   data.frame() %>% 
   mutate(
-    proportionTrue = ifelse(species == 1, 0.66, 0.33)  # To be replaced with p_herring 
+    proportionTrue = ifelse(species == 1, p_herring, 1-p_herring)  # To be replaced with p_herring 
   ) %>% 
   dplyr::rename(meanSampledProportion = pWeight) %>% 
   rowwise() %>% 
@@ -35,8 +35,8 @@ finalSummary_schemes_multiExtraction_median <- finalSummary_schemes_multiExtract
   rename(
     "Scheme" = 1, 
     "Species" = 2, 
-    "Replica" = 3, 
-    "MedE(P)" = 4, 
+    "MedE(P)" = 3, 
+    "IQRE(P)" = 4, 
     "P" = 5, 
     "P - MedE(P)" = 6
   )

@@ -36,8 +36,7 @@ flow <- abind(
   along = 2
 )
 
-## Draw the tube
-drawTube(flow, plot = 1, type = "species", legend = 1)
+
 
 ## Determine the flow to compress
 # Find the column not completely filled 
@@ -58,8 +57,20 @@ colToCompress <- min(colToCompress):max(colToCompress)
 # Filter the flow for the portion to compress
 flowToCompress <- flow[,colToCompress,]
 
-# Draw the flow to compress
-drawTube(flowToCompress, plot = 1, type = "species", legend = 1)
+## Draw the tube pre-compression
+p <- drawTube(flowToCompress, plot = 1, type = "species", legend = 1)
+
+# Save plot
+ggsave(
+  filename = paste0("flowPreCompression.png"),
+  plot = p,
+  path = paste0("results_SIMPLE/Simulation", simName),
+  width = 20,
+  height = 20,
+  units = "cm",
+  dpi = 500,
+  bg = "white"
+)
 
 # Proceed with the compression
 # Sigmoidal just remove the emptyness between the fishes, more conservative on the order of the fishes. 
@@ -117,20 +128,6 @@ if(lateralCompression == 1 & typeLateralCompression == "sharp"){
   
 }
 
-# Check compression
-# Save plot
-p <- drawTube(flowToCompress, plot = 1, type = "species", legend = 1)
-
-ggsave(
-  filename = paste0("flowPreCompression.png"),
-  plot = p,
-  path = paste0("results_SIMPLE/Simulation", simName),
-  width = 20,
-  height = 20,
-  units = "cm",
-  dpi = 500,
-  bg = "white"
-)
 
 # Replace
 flow[,min(colToCompress):max(colToCompress),] <- flowToCompress
@@ -139,7 +136,7 @@ flow[,min(colToCompress):max(colToCompress),] <- flowToCompress
 p <- drawTube(flowToCompress, plot = 1, type = "species", legend = 1)
 
 ggsave(
-  filename = paste0("flowPostCompression.png"),
+  filename = paste0("flowPostCompression_type", typeLateralCompression,".png"),
   plot = p,
   path = paste0("results_SIMPLE/Simulation", simName),
   width = 20,
